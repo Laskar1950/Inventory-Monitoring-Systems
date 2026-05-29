@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, Package, ClipboardList, UserRound, BarChart3, Boxes, LogOut, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Package, ClipboardList, UserRound, BarChart3, Boxes, LogOut, ShieldCheck, FileText } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/types/database";
 import { getInitials } from "@/lib/normalize";
@@ -18,6 +18,7 @@ const menuByRole = {
     { href: "/dashboard", label: "Dashboard Admin", icon: LayoutDashboard },
     { href: "/materials", label: "Master Material", icon: Package },
     { href: "/approvals/requests", label: "Setujui Permintaan", icon: ClipboardList },
+    { href: "/laporan-penggunaan", label: "Penggunaan Material", icon: FileText },
     { href: "/approvals/returns", label: "Setujui Pengembalian", icon: ClipboardList },
     { href: "/approvals/stock-opnames", label: "Setujui Stok Opname", icon: ShieldCheck },
     { href: "/reports", label: "Laporan", icon: BarChart3 },
