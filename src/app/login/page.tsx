@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { Zap } from "lucide-react";
 import { getSessionProfile } from "@/lib/auth";
 import { LoginForm } from "./login-form";
 
@@ -7,17 +8,19 @@ export default async function LoginPage() {
   if (profile) redirect("/dashboard");
 
   return (
-    <main className="login-screen">
-      <section className="login-card">
-        <div className="login-badge">IP</div>
+    <main className="login-screen login-nature-bg">
+      <section className="login-card login-card-modern">
+        <div className="login-badge login-badge-icon" aria-label="Lightning logo">
+          <Zap size={34} strokeWidth={3} fill="currentColor" />
+        </div>
         <div className="login-title">
           <h1>Inventory Monitoring</h1>
-          <p>PLN ICON PLUS Inventory Monitoring Systems</p>
         </div>
         <LoginForm />
-        <p style={{ textAlign: "center", color: "#94A3B8", fontSize: ".76rem", marginTop: 14 }}>
-          Next.js • Supabase • Vercel
-        </p>
+        <div className="login-footer-credit">
+          <p>Next.js • Supabase • Vercel</p>
+          <span>Created by Rizki Afrizal</span>
+        </div>
       </section>
     </main>
   );
