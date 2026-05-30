@@ -11,20 +11,21 @@ type StockOpnameItemPayload = { bag_id: string; qty_physical: number; kondisi_fi
 export async function GET(request: Request) {
   const profile = await getSessionProfile();
   if (!profile) return NextResponse.json({ error: "Sesi berakhir." }, { status: 401 });
-  const { page, limit, from, to } = getPagination(request, 20, 75);
+  const { page, limit, from } = getPagination(request, 20, 75);
   const supabase = createAdminClient();
-  let query = supabase.from("stock_opname_summary").select("id,so_code,teknisi_id,teknisi_nama,status,catatan_teknisi,reviewed_by_nama,reviewed_at,created_at,item_count,total_system_qty,total_physical_qty,total_selisih,problem_count", { count: "exact" }).order("created_at", { ascending: false }).range(from, to);
-  if (profile.role === "TEKNISI") query = query.eq("teknisi_id", profile.id);
-  const { data: summaries, error, count } = await query;
+  const { data, error } = await supabase.rpc("list_stock_opnames_page", { p_profile_id: profile.id, p_role: profile.role, p_limit: limit, p_offset: from });
   if (error) return NextResponse.json({ error: "Gagal memuat stok opname." }, { status: 500 });
-  const ids = (summaries || []).map((row) => row.id);
+  const rows = data ?? [];
+  const total = rows.length > 0 ? Number(rows[0].total_count || 0) : 0;
+  const summaries = rows.map(({ total_count, ...row }: any) => row);
+  const ids = summaries.map((row: any) => row.id);
   let items: unknown[] = [];
   if (ids.length > 0) {
     const { data: itemRows, error: itemError } = await supabase.from("stock_opname_item_detail").select("id,stock_opname_id,bag_id,material_id,material_code,material_nama,serial_number,qty_system,qty_physical,selisih,kondisi_fisik,foto_url,status_review,catatan_admin,created_at").in("stock_opname_id", ids).order("created_at", { ascending: true });
     if (itemError) return NextResponse.json({ error: "Gagal memuat detail stok opname." }, { status: 500 });
     items = itemRows || [];
   }
-  return NextResponse.json({ data: summaries || [], items, meta: paginationMeta(count, page, limit) });
+  return NextResponse.json({ data: summaries, items, meta: paginationMeta(total, page, limit) });
 }
 
 export async function POST(request: Request) {
