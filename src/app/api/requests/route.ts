@@ -25,16 +25,17 @@ async function getRequestItems(requestIds: string[]) {
 export async function GET(request: Request) {
   const profile = await getSessionProfile();
   if (!profile) return NextResponse.json({ error: "Sesi berakhir." }, { status: 401 });
-  const { page, limit, from, to } = getPagination(request, 20, 75);
+  const { page, limit, from } = getPagination(request, 20, 75);
   const supabase = createAdminClient();
-  let query = supabase.from("material_request_summary").select("id,request_code,teknisi_id,teknisi_nama,status,catatan_teknisi,catatan_admin,approved_by,approved_by_nama,approved_at,created_at,updated_at,item_count,total_qty", { count: "exact" }).order("created_at", { ascending: false }).range(from, to);
-  if (profile.role === "TEKNISI") query = query.eq("teknisi_id", profile.id);
-  const { data, error, count } = await query;
+  const { data, error } = await supabase.rpc("list_material_requests_page", { p_profile_id: profile.id, p_role: profile.role, p_limit: limit, p_offset: from });
   if (error) return NextResponse.json({ error: "Gagal memuat request material." }, { status: 500 });
   try {
-    const itemsMap = await getRequestItems((data ?? []).map((r: any) => r.id));
-    const detailed = (data ?? []).map((r: any) => ({ ...r, items: itemsMap.get(r.id) ?? [] }));
-    return NextResponse.json({ data: detailed, meta: paginationMeta(count, page, limit) });
+    const rows = data ?? [];
+    const total = rows.length > 0 ? Number(rows[0].total_count || 0) : 0;
+    const cleaned = rows.map(({ total_count, ...row }: any) => row);
+    const itemsMap = await getRequestItems(cleaned.map((r: any) => r.id));
+    const detailed = cleaned.map((r: any) => ({ ...r, items: itemsMap.get(r.id) ?? [] }));
+    return NextResponse.json({ data: detailed, meta: paginationMeta(total, page, limit) });
   } catch {
     return NextResponse.json({ error: "Gagal memuat detail request." }, { status: 500 });
   }
