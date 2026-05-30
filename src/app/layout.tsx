@@ -1,8 +1,16 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import "./phase9b.css";
 import "./phase9c.css";
+import "./phase10c.css";
 import { Toaster } from "sonner";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "PLN ICON PLUS Inventory Monitoring Systems",
@@ -11,8 +19,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id">
-      <body>
+    <html lang="id" className={inter.variable}>
+      <body className={inter.className}>
         {children}
         <Toaster richColors position="top-right" />
       </body>
