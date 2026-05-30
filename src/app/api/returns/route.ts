@@ -11,13 +11,19 @@ type ReturnItemPayload = { bag_id?: string; material_code?: string; nama?: strin
 export async function GET(request: Request) {
   const profile = await getSessionProfile();
   if (!profile) return NextResponse.json({ error: "Sesi berakhir." }, { status: 401 });
-  const { page, limit, from, to } = getPagination(request, 20, 75);
+  const { page, limit, from } = getPagination(request, 20, 75);
   const supabase = createAdminClient();
-  let query = supabase.from("material_return_summary").select("id,return_code,teknisi_id,teknisi_nama,source_type,status,kondisi,qty_return,foto_url,keterangan,catatan_admin,approved_by,approved_by_nama,approved_at,created_at,updated_at,item_count,total_qty,materials_returned,serial_numbers", { count: "exact" }).order("created_at", { ascending: false }).range(from, to);
-  if (profile.role === "TEKNISI") query = query.eq("teknisi_id", profile.id);
-  const { data, error, count } = await query;
+  const { data, error } = await supabase.rpc("list_material_returns_page", {
+    p_profile_id: profile.id,
+    p_role: profile.role,
+    p_limit: limit,
+    p_offset: from,
+  });
   if (error) return NextResponse.json({ error: "Gagal memuat data pengembalian." }, { status: 500 });
-  return NextResponse.json({ data, meta: paginationMeta(count, page, limit) });
+  const rows = data ?? [];
+  const total = rows.length > 0 ? Number(rows[0].total_count || 0) : 0;
+  const cleaned = rows.map(({ total_count, ...row }: any) => row);
+  return NextResponse.json({ data: cleaned, meta: paginationMeta(total, page, limit) });
 }
 
 export async function POST(request: Request) {
@@ -31,7 +37,7 @@ export async function POST(request: Request) {
     const keterangan = String(formData.get("keterangan") ?? "").trim();
     const itemsRaw = String(formData.get("items") ?? "[]");
     const foto = formData.get("foto") as File | null;
-    if (!['BAG', 'MANUAL'].includes(sourceType)) return NextResponse.json({ error: "Sumber pengembalian tidak valid." }, { status: 400 });
+    if (!["BAG", "MANUAL"].includes(sourceType)) return NextResponse.json({ error: "Sumber pengembalian tidak valid." }, { status: 400 });
     if (!kondisi) return NextResponse.json({ error: "Kondisi wajib dipilih." }, { status: 400 });
     if (!foto || foto.size === 0) return NextResponse.json({ error: "Foto material wajib diupload." }, { status: 400 });
     if (!ALLOWED_TYPES.has(foto.type)) return NextResponse.json({ error: "Foto return harus berupa JPG, PNG, atau WEBP." }, { status: 400 });
