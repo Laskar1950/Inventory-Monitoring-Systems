@@ -4,37 +4,19 @@ import { useEffect, useMemo, useState } from "react";
 import { ImageIcon, Plus, RefreshCcw, X } from "lucide-react";
 import type { TechnicianBagItem } from "@/types/database";
 
-type UsageSummary = {
-  id: string;
-  usage_code: string;
-  teknisi_id: string;
-  teknisi_nama: string;
-  no_tiket: string;
-  nama_pelanggan: string | null;
-  id_pelanggan: string | null;
-  alamat: string | null;
-  root_cause: string | null;
-  foto_url: string;
-  created_at: string;
-  item_count: number;
-  total_qty: number;
-  materials_used: string | null;
-  material_names?: string | null;
-  serial_numbers?: string | null;
-};
-
+type UsageSummary = { id: string; usage_code: string; teknisi_id: string; teknisi_nama: string; no_tiket: string; nama_pelanggan: string | null; id_pelanggan: string | null; alamat: string | null; root_cause: string | null; foto_url: string; created_at: string; item_count: number; total_qty: number; materials_used: string | null; material_names?: string | null; serial_numbers?: string | null };
 type SelectedItem = { bag_id: string; label: string; serial_number: string | null; wajib_sn: boolean; available_qty: number; qty: number };
 
 function formatDate(value: string) { return new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)); }
 function materialName(value?: string | null) { if (!value) return ""; return value.split(", ").map((part) => part.includes(" - ") ? part.split(" - ").slice(1).join(" - ") : part).join(", "); }
+function LocalPreview({ file }: { file: File | null }) { const [src, setSrc] = useState(""); useEffect(() => { if (!file) { setSrc(""); return; } const url = URL.createObjectURL(file); setSrc(url); return () => URL.revokeObjectURL(url); }, [file]); if (!src) return null; return <img className="table-thumb" src={src} alt="Preview foto eviden" />; }
 
 function EvidenceThumb({ path, alt }: { path?: string | null; alt: string }) {
   const [src, setSrc] = useState("");
   const [failed, setFailed] = useState(false);
   useEffect(() => {
     let active = true;
-    setFailed(false);
-    setSrc("");
+    setFailed(false); setSrc("");
     if (!path) return;
     if (path.startsWith("http")) { setSrc(path); return; }
     fetch(`/api/storage-url?bucket=usage-evidence&path=${encodeURIComponent(path)}`)
@@ -43,7 +25,6 @@ function EvidenceThumb({ path, alt }: { path?: string | null; alt: string }) {
       .catch(() => { if (active) setFailed(true); });
     return () => { active = false; };
   }, [path]);
-
   if (!path || failed) return <span className="thumb-empty"><ImageIcon size={16} /> Tidak ada</span>;
   if (!src) return <span className="thumb-empty">Memuat foto...</span>;
   return <a href={src} target="_blank" rel="noreferrer"><img className="table-thumb" src={src} alt={alt} onError={() => setFailed(true)} /></a>;
@@ -123,6 +104,6 @@ export function UsagesClient({ readOnly = false }: { readOnly?: boolean }) {
       {message && <div className="alert-success">{message}</div>}{error && <div className="alert-error">{error}</div>}
       <div className="table-wrap"><table className="table"><thead><tr>{readOnly && <th>Teknisi</th>}<th>Tanggal</th><th>Tiket</th><th>Pelanggan</th><th>Alamat</th><th>Material</th><th>Serial Number</th><th>Qty</th><th>Foto</th></tr></thead><tbody>{loading ? <tr><td colSpan={readOnly ? 9 : 8}>Memuat data...</td></tr> : usages.length === 0 ? <tr><td colSpan={readOnly ? 9 : 8}>Belum ada penggunaan material.</td></tr> : usages.map((usage) => <tr key={usage.id}>{readOnly && <td>{usage.teknisi_nama}</td>}<td>{formatDate(usage.created_at)}</td><td>{usage.no_tiket}</td><td>{usage.nama_pelanggan || "-"}</td><td className="wide-cell">{usage.alamat || "-"}</td><td>{usage.material_names || materialName(usage.materials_used) || `${usage.item_count} item`}</td><td>{usage.serial_numbers || "-"}</td><td>{usage.total_qty}</td><td><EvidenceThumb path={usage.foto_url} alt={`Foto penggunaan ${usage.no_tiket}`} /></td></tr>)}</tbody></table></div>
     </section>
-    {formOpen && !readOnly && <div className="modal-backdrop"><div className="modal"><div className="modal-header"><div><h3 className="modal-title">Input Penggunaan Material</h3><div className="modal-subtitle">Pilih material dari Tas Saya, isi tiket/pelanggan, lalu upload foto eviden.</div></div><button type="button" className="btn-ghost" onClick={() => { resetForm(); setFormOpen(false); }}><X size={16}/> Tutup</button></div><form onSubmit={submitUsage} className="form-stack"><div className="modal-body"><div className="form-grid three"><label><span>Nomor Tiket *</span><input value={noTiket} onChange={(e) => setNoTiket(e.target.value)} placeholder="Contoh: TIK-001" required /></label><label><span>Nama Pelanggan</span><input value={namaPelanggan} onChange={(e) => setNamaPelanggan(e.target.value)} placeholder="Nama pelanggan" /></label><label><span>ID Pelanggan</span><input value={idPelanggan} onChange={(e) => setIdPelanggan(e.target.value)} placeholder="ID pelanggan" /></label></div><label><span>Alamat Pelanggan</span><textarea value={alamat} onChange={(e) => setAlamat(e.target.value)} rows={2} placeholder="Alamat pelanggan / lokasi pekerjaan" /></label><div className="form-grid usage-add-grid"><label><span>Material dari Tas *</span><select value={selectedBagId} onChange={(e) => setSelectedBagId(e.target.value)} disabled={loading}><option value="">Pilih material</option>{availableBagItems.map((item) => <option key={item.id} value={item.id}>{item.material_nama} {item.serial_number ? `| SN: ${item.serial_number}` : ""} | Stok: {item.remaining_qty}</option>)}</select></label><label><span>Qty *</span><input type="number" min={1} value={qty} onChange={(e) => setQty(Number(e.target.value))} /></label><button className="btn-dark align-end" type="button" onClick={addItem}>Tambah</button></div>{items.length > 0 && <div className="mini-table-wrap"><table className="table compact"><thead><tr><th>Material</th><th>Serial Number</th><th>Qty</th><th>Aksi</th></tr></thead><tbody>{items.map((item) => <tr key={item.bag_id}><td>{item.label}</td><td>{item.serial_number || "-"}</td><td>{item.qty}</td><td><button className="btn-danger-small" type="button" onClick={() => setItems((prev) => prev.filter((row) => row.bag_id !== item.bag_id))}>Hapus</button></td></tr>)}</tbody></table></div>}<label><span>Root Cause *</span><textarea value={rootCause} onChange={(e) => setRootCause(e.target.value)} rows={3} placeholder="Jelaskan penyebab dan pekerjaan yang dilakukan" required /></label><label><span>Foto Eviden *</span><input id="usage-photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setFoto(e.target.files?.[0] ?? null)} required />{foto && <img className="upload-preview" src={URL.createObjectURL(foto)} alt="Preview foto eviden" />}</label></div><div className="modal-footer"><button className="btn-primary" type="submit" disabled={submitting || loading}>{submitting ? "Menyimpan penggunaan..." : "Kirim Laporan"}</button></div></form></div></div>}
+    {formOpen && !readOnly && <div className="modal-backdrop"><div className="modal"><div className="modal-header"><div><h3 className="modal-title">Input Penggunaan Material</h3><div className="modal-subtitle">Pilih material dari Tas Saya, isi tiket/pelanggan, lalu upload foto eviden.</div></div><button type="button" className="btn-ghost" onClick={() => { resetForm(); setFormOpen(false); }}><X size={16}/> Tutup</button></div><form onSubmit={submitUsage} className="form-stack"><div className="modal-body"><div className="form-grid three"><label><span>Nomor Tiket *</span><input value={noTiket} onChange={(e) => setNoTiket(e.target.value)} placeholder="Contoh: TIK-001" required /></label><label><span>Nama Pelanggan</span><input value={namaPelanggan} onChange={(e) => setNamaPelanggan(e.target.value)} placeholder="Nama pelanggan" /></label><label><span>ID Pelanggan</span><input value={idPelanggan} onChange={(e) => setIdPelanggan(e.target.value)} placeholder="ID pelanggan" /></label></div><label><span>Alamat Pelanggan</span><textarea value={alamat} onChange={(e) => setAlamat(e.target.value)} rows={2} placeholder="Alamat pelanggan / lokasi pekerjaan" /></label><div className="form-grid usage-add-grid"><label><span>Material dari Tas *</span><select value={selectedBagId} onChange={(e) => setSelectedBagId(e.target.value)} disabled={loading}><option value="">Pilih material</option>{availableBagItems.map((item) => <option key={item.id} value={item.id}>{item.material_nama} {item.serial_number ? `| SN: ${item.serial_number}` : ""} | Stok: {item.remaining_qty}</option>)}</select></label><label><span>Qty *</span><input type="number" min={1} value={qty} onChange={(e) => setQty(Number(e.target.value))} /></label><button className="btn-dark align-end" type="button" onClick={addItem}>Tambah</button></div>{items.length > 0 && <div className="mini-table-wrap"><table className="table compact"><thead><tr><th>Material</th><th>Serial Number</th><th>Qty</th><th>Aksi</th></tr></thead><tbody>{items.map((item) => <tr key={item.bag_id}><td>{item.label}</td><td>{item.serial_number || "-"}</td><td>{item.qty}</td><td><button className="btn-danger-small" type="button" onClick={() => setItems((prev) => prev.filter((row) => row.bag_id !== item.bag_id))}>Hapus</button></td></tr>)}</tbody></table></div>}<label><span>Root Cause *</span><textarea value={rootCause} onChange={(e) => setRootCause(e.target.value)} rows={3} placeholder="Jelaskan penyebab dan pekerjaan yang dilakukan" required /></label><label><span>Foto Eviden *</span><input id="usage-photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setFoto(e.target.files?.[0] ?? null)} required /></label><LocalPreview file={foto} /></div><div className="modal-footer"><button className="btn-primary" type="submit" disabled={submitting || loading}>{submitting ? "Menyimpan penggunaan..." : "Kirim Laporan"}</button></div></form></div></div>}
   </div>;
 }
