@@ -40,11 +40,8 @@ export function AppShellClient({ profile, title, children }: { profile: ExtProfi
 
   return <div className={layoutClass}>
     <aside className="sidebar">
-      <div className="sidebar-header shell-profile-header">
-        <Link href="/dashboard" className="shell-profile-mini app-brand-mini">
-          <span className="shell-profile-logo brand-lightning"><Zap size={28} strokeWidth={3} fill="currentColor" /></span>
-          <span className="shell-profile-copy"><strong>PLN ICONPLUS</strong><small>Inventory Systems</small></span>
-        </Link>
+      <div className="sidebar-header shell-logo-header">
+        <Link href="/dashboard" className="brand-logo-only" title="PLN ICONPLUS Inventory Systems"><Zap size={26} strokeWidth={3} fill="currentColor" /></Link>
         <button className="sidebar-collapse-btn mobile-only" type="button" onClick={() => setMobileOpen(false)}><X size={16} /></button>
       </div>
       <button className="sidebar-collapse-row desktop-only" type="button" onClick={toggleCollapsed}><span>{collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}</span><b>Collapse</b></button>
