@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { BarChart3, Bell, Boxes, ChevronLeft, ChevronRight, ClipboardList, FileText, LayoutDashboard, LogOut, Menu, Moon, Package, ShieldCheck, Sun, UserRound, X } from "lucide-react";
+import { BarChart3, Bell, Boxes, ChevronLeft, ChevronRight, ClipboardList, FileText, LayoutDashboard, LogOut, Menu, Moon, Package, ShieldCheck, Sun, UserRound, X, Zap } from "lucide-react";
 import type { Profile, UserRole } from "@/types/database";
 import { getInitials } from "@/lib/normalize";
 
@@ -41,9 +41,9 @@ export function AppShellClient({ profile, title, children }: { profile: ExtProfi
   return <div className={layoutClass}>
     <aside className="sidebar">
       <div className="sidebar-header shell-profile-header">
-        <Link href="/profile" className="shell-profile-mini">
-          <span className="shell-profile-logo">{avatar ? <img src={avatar} alt={profile.nama} onError={() => setAvatar("")} /> : getInitials(profile.nama)}</span>
-          <span className="shell-profile-copy"><strong>{profile.nama}</strong><small>{profile.role}</small></span>
+        <Link href="/dashboard" className="shell-profile-mini app-brand-mini">
+          <span className="shell-profile-logo brand-lightning"><Zap size={28} strokeWidth={3} fill="currentColor" /></span>
+          <span className="shell-profile-copy"><strong>PLN ICONPLUS</strong><small>Inventory Systems</small></span>
         </Link>
         <button className="sidebar-collapse-btn mobile-only" type="button" onClick={() => setMobileOpen(false)}><X size={16} /></button>
       </div>
