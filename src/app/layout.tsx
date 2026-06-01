@@ -4,6 +4,7 @@ import "./globals.css";
 import "./phase9b.css";
 import "./phase9c.css";
 import "./phase10c.css";
+import "./phase10d.css";
 import { Toaster } from "sonner";
 
 const inter = Inter({
@@ -13,7 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "PLN ICON PLUS Inventory Monitoring Systems",
+  title: "PLN ICONPLUS Inventory Systems",
   description: "Inventory Monitoring Systems migrated to Next.js and Supabase",
 };
 
