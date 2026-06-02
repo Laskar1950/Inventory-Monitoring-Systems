@@ -3,10 +3,12 @@ import { requireProfile } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ApprovalRequestsClient } from "./approval-requests-client";
 
+const LIMIT = 6;
+
 export default async function Page() {
   const profile = await requireProfile(["ADMIN"]);
   const supabase = createAdminClient();
-  const { data: requests } = await supabase.from("material_request_summary").select("*").order("created_at", { ascending: false });
+  const { data: requests, count } = await supabase.from("material_request_summary").select("*", { count: "exact" }).order("created_at", { ascending: false }).range(0, LIMIT - 1);
   const requestIds = (requests ?? []).map((r: any) => r.id);
   const { data: items } = requestIds.length
     ? await supabase.from("material_request_items").select("id,request_id,material_id,qty_requested,qty_approved,status,materials(material_code,nama,merk,satuan,wajib_sn)").in("request_id", requestIds).order("created_at")
@@ -21,7 +23,7 @@ export default async function Page() {
   const detailed = (requests ?? []).map((r: any) => ({ ...r, items: itemsMap.get(r.id) ?? [] }));
   return (
     <AppShell profile={profile} title="Setujui Permintaan">
-      <ApprovalRequestsClient initialRequests={detailed as any} />
+      <ApprovalRequestsClient initialRequests={detailed as any} initialMeta={{ page: 1, limit: LIMIT, total: count ?? 0, totalPages: Math.max(1, Math.ceil((count ?? 0) / LIMIT)) }} />
     </AppShell>
   );
 }
