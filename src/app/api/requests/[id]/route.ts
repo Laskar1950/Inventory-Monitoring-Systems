@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getSessionProfile } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
   const profile = await getSessionProfile();
   if (!profile) return NextResponse.json({ error: "Sesi berakhir." }, { status: 401 });
   if (profile.role !== "ADMIN" && profile.role !== "SUPERVISOR") return NextResponse.json({ error: "Akses ditolak." }, { status: 403 });
@@ -11,7 +12,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   const { data: requestRow, error: requestError } = await supabase
     .from("material_request_summary")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (requestError || !requestRow) return NextResponse.json({ error: "Request tidak ditemukan." }, { status: 404 });
@@ -20,13 +21,13 @@ export async function GET(_request: Request, { params }: { params: { id: string 
     supabase
       .from("material_request_items")
       .select("id,request_id,material_id,qty_requested,qty_approved,status,materials(material_code,nama,merk,satuan,wajib_sn)")
-      .eq("request_id", params.id)
+      .eq("request_id", id)
       .order("created_at"),
     supabase
       .from("material_serial_movement_detail")
       .select("id,serial_number_id,serial_number,material_id,material_code,material_nama,movement_type,from_location_type,to_location_type,to_teknisi_nama,reference_id,reference_item_id,note,created_at")
       .eq("reference_type", "material_requests")
-      .eq("reference_id", params.id)
+      .eq("reference_id", id)
       .eq("movement_type", "REQUEST_APPROVED")
       .order("created_at"),
   ]);
