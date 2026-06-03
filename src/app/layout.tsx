@@ -6,6 +6,7 @@ import "./phase9c.css";
 import "./phase10c.css";
 import "./phase10d.css";
 import "./phase10e.css";
+import "./phase12.css";
 import { Toaster } from "sonner";
 
 const inter = Inter({
