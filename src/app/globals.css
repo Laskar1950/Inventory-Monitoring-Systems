@@ -12,6 +12,19 @@
   --success-color: #10B981;
   --success-bg: #D1FAE5;
   --dark-button: #1E293B;
+
+  /* Dashboard redesign CSS variables */
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --color-surface: #ffffff;
+  --color-surface-offset: #f8fafc;
+  --color-surface-dynamic: #e2e8f0;
+  --color-border: #e2e8f0;
+  --color-divider: #e2e8f0;
+  --color-primary: #2563eb;
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
 }
 
 * { box-sizing: border-box; }
