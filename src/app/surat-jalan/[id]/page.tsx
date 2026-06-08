@@ -25,6 +25,15 @@ type PrintRow = {
   serial: string;
 };
 
+type SignatureBlockProps = {
+  title: string;
+  role: string;
+  name?: string | null;
+  signedAt?: string | null;
+  signatureUrl?: string | null;
+  signedSrc?: string | null;
+};
+
 function formatDate(value?: string | null) {
   if (!value) return "-";
   return new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(value));
@@ -39,6 +48,19 @@ function signatureText(path?: string | null) {
   if (!path) return "Menunggu tanda tangan";
   if (path.startsWith("digital")) return "Ditandatangani digital";
   return "Tanda tangan tersimpan";
+}
+
+function isImageSignature(path?: string | null) {
+  return Boolean(path && !path.startsWith("digital") && !path.startsWith("http"));
+}
+
+async function getSignedSignatureUrl(path?: string | null) {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  if (path.startsWith("digital")) return null;
+  const supabase = createAdminClient();
+  const { data } = await supabase.storage.from("signatures").createSignedUrl(path, 60 * 30);
+  return data?.signedUrl ?? null;
 }
 
 async function getSuratJalan(id: string) {
@@ -76,7 +98,15 @@ async function getSuratJalan(id: string) {
     };
   });
 
-  return { request: request as RequestSummary, items };
+  const r = request as RequestSummary;
+  const signatures = {
+    admin: await getSignedSignatureUrl(r.admin_signature_url),
+    koordinator: await getSignedSignatureUrl(r.koordinator_signature_url),
+    supervisor: await getSignedSignatureUrl(r.supervisor_signature_url),
+    teknisi: await getSignedSignatureUrl(r.teknisi_signature_url),
+  };
+
+  return { request: r, items, signatures };
 }
 
 function fillRows(items: ItemRow[]): PrintRow[] {
@@ -91,12 +121,24 @@ function fillRows(items: ItemRow[]): PrintRow[] {
   return rows.slice(0, 40);
 }
 
+function SignatureBlock({ title, role, name, signedAt, signatureUrl, signedSrc }: SignatureBlockProps) {
+  return <div className="sj-sign-box">
+    <strong>{title}</strong>
+    <span>{role}</span>
+    <div className="sj-sign-space">
+      {signedSrc ? <img className="sj-sign-img" src={signedSrc} alt={`Tanda tangan ${role}`} /> : <em>{name ? signatureText(signatureUrl) : "Menunggu tanda tangan"}</em>}
+    </div>
+    <b>{name || "-"}</b>
+    <small>{formatDateTime(signedAt)}</small>
+  </div>;
+}
+
 export default async function SuratJalanPage({ params }: { params: Promise<{ id: string }> }) {
   const profile = await requireProfile(["ADMIN", "LEADER", "KOORDINATOR", "SUPERVISOR", "TEKNISI"]);
   const { id } = await params;
   const data = await getSuratJalan(id);
   if (!data) notFound();
-  const { request, items } = data;
+  const { request, items, signatures } = data;
   if (profile.role === "TEKNISI" && request.teknisi_id !== profile.id) notFound();
   const rows = fillRows(items);
 
@@ -128,10 +170,10 @@ export default async function SuratJalanPage({ params }: { params: Promise<{ id:
       <p className="sj-note">Catatan: Barang/material diterima dan diserahkan dalam kondisi sesuai hasil pemeriksaan dan persetujuan pada sistem.</p>
 
       <div className="sj-signatures">
-        <div className="sj-sign-box"><strong>Yang Menyerahkan</strong><span>Admin Gudang</span><div className="sj-sign-space">{request.approved_by_nama || "-"}</div><small>{formatDateTime(request.approved_at)}</small></div>
-        <div className="sj-sign-box"><strong>Mengetahui</strong><span>Koordinator</span><div className="sj-sign-space">{request.koordinator_nama || signatureText(request.koordinator_signature_url)}</div><small>{formatDateTime(request.koordinator_signed_at)}</small></div>
-        <div className="sj-sign-box"><strong>Menyetujui</strong><span>Supervisor</span><div className="sj-sign-space">{request.supervisor_nama || signatureText(request.supervisor_signature_url)}</div><small>{formatDateTime(request.supervisor_signed_at)}</small></div>
-        <div className="sj-sign-box"><strong>Yang Menerima</strong><span>Teknisi</span><div className="sj-sign-space">{request.teknisi_nama}</div><small>{formatDateTime(request.created_at)}</small></div>
+        <SignatureBlock title="Yang Menyerahkan" role="Admin Gudang" name={request.approved_by_nama} signedAt={request.admin_signed_at || request.approved_at} signatureUrl={request.admin_signature_url} signedSrc={signatures.admin} />
+        <SignatureBlock title="Mengetahui" role="Koordinator" name={request.koordinator_nama} signedAt={request.koordinator_signed_at} signatureUrl={request.koordinator_signature_url} signedSrc={signatures.koordinator} />
+        <SignatureBlock title="Menyetujui" role="Supervisor" name={request.supervisor_nama} signedAt={request.supervisor_signed_at} signatureUrl={request.supervisor_signature_url} signedSrc={signatures.supervisor} />
+        <SignatureBlock title="Yang Menerima" role="Teknisi" name={request.teknisi_signature_url ? request.teknisi_nama : null} signedAt={request.teknisi_signed_at || request.received_at} signatureUrl={request.teknisi_signature_url} signedSrc={signatures.teknisi} />
       </div>
     </section>
   </main>;
