@@ -6,14 +6,13 @@ import { notifyByRole, notifyUser } from "@/lib/notifications";
 
 const schema = z.object({
   catatan_admin: z.string().optional().nullable(),
-  // item_serials: map dari material_request_item_id -> array serial_number_id yang dipilih
   item_serials: z.record(z.string().uuid(), z.array(z.string().uuid())).optional(),
 });
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const profile = await getSessionProfile();
   if (!profile) return NextResponse.json({ error: "Sesi berakhir." }, { status: 401 });
-  if (profile.role !== "ADMIN") return NextResponse.json({ error: "Hanya Admin Gudang yang boleh approval request." }, { status: 403 });
+  if (profile.role !== "ADMIN") return NextResponse.json({ error: "Hanya Admin Gudang yang boleh memproses surat jalan." }, { status: 403 });
 
   const { id } = await params;
   const body = await request.json().catch(() => ({}));
@@ -29,14 +28,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   if (!requestBefore) return NextResponse.json({ error: "Request tidak ditemukan." }, { status: 404 });
   if (requestBefore.status !== "LEADER_APPROVED") {
-    return NextResponse.json({ error: "Request harus sudah disetujui Leader sebelum Admin approval." }, { status: 400 });
+    return NextResponse.json({ error: "Request harus sudah disetujui Leader sebelum Admin memproses surat jalan." }, { status: 400 });
   }
 
-  // Generate nomor surat jalan
   const now = new Date();
   const suratJalanNumber = `SJ-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${requestBefore.request_code}`;
 
-  // Update status ke WAITING_SIGNATURE dan simpan surat jalan number
   const { error: updateError } = await supabase
     .from("material_requests")
     .update({
@@ -51,7 +48,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   if (updateError) return NextResponse.json({ error: updateError.message || "Gagal update status request." }, { status: 400 });
 
-  // Approve items (qty_approved = qty_requested)
   const { data: items } = await supabase
     .from("material_request_items")
     .select("id,qty_requested")
@@ -63,16 +59,22 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     );
   }
 
-  // Notif ke Koordinator
   await notifyByRole(["KOORDINATOR"], {
-    title: "Surat Jalan menunggu tanda tangan",
-    message: `Surat Jalan ${suratJalanNumber} siap ditandatangani Koordinator.`,
+    title: "Surat jalan menunggu tanda tangan Koordinator",
+    message: `Surat jalan ${suratJalanNumber} siap ditandatangani Koordinator.`,
     entityType: "material_requests",
     entityId: id,
     linkUrl: "/approvals/koordinator",
   });
 
-  // Notif ke teknisi
+  await notifyByRole(["SUPERVISOR"], {
+    title: "Surat jalan sedang diproses",
+    message: `Surat jalan ${suratJalanNumber} sedang menunggu tanda tangan Koordinator sebelum approval final Supervisor.`,
+    entityType: "material_requests",
+    entityId: id,
+    linkUrl: "/approvals/supervisor",
+  });
+
   if (requestBefore.teknisi_id) {
     await notifyUser(requestBefore.teknisi_id, {
       title: "Request diproses Admin",
