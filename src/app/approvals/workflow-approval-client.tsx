@@ -8,8 +8,19 @@ import type { RequestDetail } from "@/types/database";
 
 type Mode = "LEADER" | "KOORDINATOR" | "SUPERVISOR";
 type Meta = { page: number; limit: number; total: number; totalPages: number };
+type WorkflowConfig = {
+  title: string;
+  desc: string;
+  actionStatus: string;
+  approveLabel: string;
+  rejectLabel?: string;
+  approvePath: string;
+  rejectPath?: string;
+  notePlaceholder: string;
+  success: string;
+};
 
-const config = {
+const config: Record<Mode, WorkflowConfig> = {
   LEADER: {
     title: "Approval Request Leader",
     desc: "Leader melakukan review awal request teknisi sebelum diproses Admin Gudang.",
@@ -39,7 +50,7 @@ const config = {
     notePlaceholder: "Catatan opsional",
     success: "Surat jalan berhasil di-approve final.",
   },
-} satisfies Record<Mode, any>;
+};
 
 function formatDate(value: string) { return new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)); }
 function statusText(status: string) { return status === "PENDING" ? "Menunggu Leader" : status === "LEADER_APPROVED" ? "Menunggu Admin" : status === "WAITING_SIGNATURE" ? "Menunggu Koordinator" : status === "KOORDINATOR_SIGNED" ? "Menunggu Supervisor" : status; }
