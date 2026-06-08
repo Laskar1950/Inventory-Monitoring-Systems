@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { BarChart3, Bell, Boxes, ChevronLeft, ChevronRight, ClipboardList, FileText, LayoutDashboard, LogOut, Menu, Moon, Package, ShieldCheck, Sun, UserRound, X, Zap } from "lucide-react";
+import { BarChart3, Bell, Boxes, ChevronLeft, ChevronRight, ClipboardList, FileSignature, FileText, LayoutDashboard, LogOut, Menu, Moon, Package, ShieldCheck, Sun, UserRound, X, Zap } from "lucide-react";
 import type { Profile, UserRole } from "@/types/database";
 import { getInitials } from "@/lib/normalize";
 
@@ -13,8 +13,10 @@ type ThemeMode = "light" | "dark";
 
 const menuByRole = {
   TEKNISI: [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },{ href: "/requests", label: "Permintaan Material", icon: ClipboardList },{ href: "/my-bag", label: "Tas Saya", icon: Boxes },{ href: "/usages", label: "Penggunaan", icon: Package },{ href: "/returns", label: "Pengembalian", icon: ClipboardList },{ href: "/stock-opnames", label: "Stok Opname", icon: ShieldCheck },{ href: "/profile", label: "Profil Saya", icon: UserRound }],
-  ADMIN: [{ href: "/dashboard", label: "Dashboard Admin", icon: LayoutDashboard },{ href: "/materials", label: "Master Material", icon: Package },{ href: "/approvals/requests", label: "Setujui Permintaan", icon: ClipboardList },{ href: "/laporan-penggunaan", label: "Penggunaan Material", icon: FileText },{ href: "/approvals/returns", label: "Setujui Pengembalian", icon: ClipboardList },{ href: "/approvals/stock-opnames", label: "Setujui Stok Opname", icon: ShieldCheck },{ href: "/reports", label: "Laporan", icon: BarChart3 },{ href: "/profile", label: "Profil Saya", icon: UserRound }],
-  SUPERVISOR: [{ href: "/dashboard", label: "Dashboard Supervisor", icon: LayoutDashboard },{ href: "/monitoring/materials", label: "Monitoring Material", icon: Package },{ href: "/monitoring/technicians", label: "Monitoring Teknisi", icon: UserRound },{ href: "/supervisor/analysis", label: "Analisa Material", icon: BarChart3 },{ href: "/reports", label: "Laporan Supervisor", icon: BarChart3 },{ href: "/profile", label: "Profil Saya", icon: UserRound }],
+  LEADER: [{ href: "/dashboard", label: "Dashboard Leader", icon: LayoutDashboard },{ href: "/approvals/leader", label: "Approval Request", icon: ClipboardList },{ href: "/reports", label: "Laporan", icon: BarChart3 },{ href: "/profile", label: "Profil Saya", icon: UserRound }],
+  ADMIN: [{ href: "/dashboard", label: "Dashboard Admin", icon: LayoutDashboard },{ href: "/materials", label: "Master Material", icon: Package },{ href: "/approvals/requests", label: "Proses Surat Jalan", icon: FileText },{ href: "/laporan-penggunaan", label: "Penggunaan Material", icon: FileText },{ href: "/approvals/returns", label: "Setujui Pengembalian", icon: ClipboardList },{ href: "/approvals/stock-opnames", label: "Setujui Stok Opname", icon: ShieldCheck },{ href: "/reports", label: "Laporan", icon: BarChart3 },{ href: "/profile", label: "Profil Saya", icon: UserRound }],
+  KOORDINATOR: [{ href: "/dashboard", label: "Dashboard Koordinator", icon: LayoutDashboard },{ href: "/approvals/koordinator", label: "Tanda Tangan SJ", icon: FileSignature },{ href: "/reports", label: "Laporan", icon: BarChart3 },{ href: "/profile", label: "Profil Saya", icon: UserRound }],
+  SUPERVISOR: [{ href: "/dashboard", label: "Dashboard Supervisor", icon: LayoutDashboard },{ href: "/approvals/supervisor", label: "Approval Final SJ", icon: FileSignature },{ href: "/monitoring/materials", label: "Monitoring Material", icon: Package },{ href: "/monitoring/technicians", label: "Monitoring Teknisi", icon: UserRound },{ href: "/supervisor/analysis", label: "Analisa Material", icon: BarChart3 },{ href: "/reports", label: "Laporan Supervisor", icon: BarChart3 },{ href: "/profile", label: "Profil Saya", icon: UserRound }],
 } satisfies Record<UserRole, Array<{ href: string; label: string; icon: typeof LayoutDashboard }>>;
 
 function isActive(pathname: string, href: string) { if (href === "/dashboard") return pathname === "/dashboard"; return pathname === href || pathname.startsWith(`${href}/`); }
