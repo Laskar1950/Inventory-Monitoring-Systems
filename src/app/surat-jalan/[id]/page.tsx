@@ -17,6 +17,14 @@ type ItemRow = {
   serials: string[];
 };
 
+type PrintRow = {
+  name: string;
+  code: string;
+  qty: number | string;
+  type: string;
+  serial: string;
+};
+
 function formatDate(value?: string | null) {
   if (!value) return "-";
   return new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(value));
@@ -71,8 +79,8 @@ async function getSuratJalan(id: string) {
   return { request: request as RequestSummary, items };
 }
 
-function fillRows(items: ItemRow[]) {
-  const rows = items.map((item) => ({
+function fillRows(items: ItemRow[]): PrintRow[] {
+  const rows: PrintRow[] = items.map((item) => ({
     name: item.material_nama,
     code: item.material_code,
     qty: item.qty_approved ?? item.qty_requested,
