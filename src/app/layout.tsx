@@ -7,6 +7,7 @@ import "./phase10c.css";
 import "./phase10d.css";
 import "./phase10e.css";
 import "./phase12.css";
+import "./surat-jalan.css";
 import "../styles/dashboard.css";
 import { Toaster } from "sonner";
 
