@@ -13,6 +13,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const profile = await getSessionProfile();
   if (!profile) return NextResponse.json({ error: "Sesi berakhir." }, { status: 401 });
   if (profile.role !== "ADMIN") return NextResponse.json({ error: "Hanya Admin Gudang yang boleh memproses surat jalan." }, { status: 403 });
+  if (!profile.signature_url) return NextResponse.json({ error: "Tanda tangan Admin belum tersedia. Lengkapi tanda tangan digital di halaman Profil Saya terlebih dahulu." }, { status: 400 });
 
   const { id } = await params;
   const body = await request.json().catch(() => ({}));
@@ -40,6 +41,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       status: "WAITING_SIGNATURE",
       approved_by: profile.id,
       approved_at: now.toISOString(),
+      admin_signature_url: profile.signature_url,
+      admin_signed_at: now.toISOString(),
       catatan_admin: parsed.data.catatan_admin ?? null,
       surat_jalan_number: suratJalanNumber,
       updated_at: now.toISOString(),
