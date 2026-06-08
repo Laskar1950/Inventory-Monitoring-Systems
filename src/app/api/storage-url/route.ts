@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionProfile } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-const ALLOWED_BUCKETS = new Set(["usage-evidence", "return-evidence", "stock-opname-evidence", "profile-photos", "foto-inventory"]);
+const ALLOWED_BUCKETS = new Set(["usage-evidence", "return-evidence", "stock-opname-evidence", "profile-photos", "foto-inventory", "signatures"]);
 
 export async function GET(request: Request) {
   const profile = await getSessionProfile();
