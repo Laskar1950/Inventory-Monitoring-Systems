@@ -63,6 +63,8 @@ export type RequestSummary = {
   approved_by: string | null;
   approved_by_nama: string | null;
   approved_at: string | null;
+  admin_signature_url: string | null;
+  admin_signed_at: string | null;
   koordinator_id: string | null;
   koordinator_nama: string | null;
   koordinator_signed_at: string | null;
@@ -139,6 +141,8 @@ export type SuratJalanData = {
   created_at: string;
   approved_at: string | null;
   admin_nama: string | null;
+  admin_signature_url: string | null;
+  admin_signed_at: string | null;
   koordinator_nama: string | null;
   koordinator_signature_url: string | null;
   koordinator_signed_at: string | null;
