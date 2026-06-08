@@ -21,6 +21,11 @@ export type Profile = {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  keterangan?: string | null;
+  photo_url?: string | null;
+  signature_url?: string | null;
+  signature_type?: string | null;
+  signature_updated_at?: string | null;
 };
 
 export type Material = {
