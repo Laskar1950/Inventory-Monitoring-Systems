@@ -2,6 +2,7 @@
 -- Correct role flow: TEKNISI -> LEADER -> ADMIN -> KOORDINATOR -> SUPERVISOR.
 -- MANAGER role is intentionally not used; final approval uses existing SUPERVISOR role.
 -- Run this in Supabase SQL Editor after previous patches.
+-- If this is your first run and Supabase reports enum usage errors, run section 1 first, then run the remaining sections.
 
 -- 1) Extend enums safely.
 do $$ begin
@@ -49,7 +50,12 @@ on public.material_requests(surat_jalan_number)
 where surat_jalan_number is not null;
 
 -- 3) Recreate request summary with full surat jalan fields.
-create or replace view public.material_request_summary as
+-- Existing view may have a different column order from older phases. PostgreSQL cannot change view column names/order with CREATE OR REPLACE VIEW,
+-- so we drop dependent RPC first, then recreate the view safely.
+drop function if exists public.list_material_requests_page(uuid, text, integer, integer);
+drop view if exists public.material_request_summary;
+
+create view public.material_request_summary as
 select
   mr.id,
   mr.request_code,
@@ -92,7 +98,7 @@ left join public.material_request_items mri on mri.request_id = mr.id
 group by mr.id, p.nama, p.email, lp.nama, ap.nama, kp.nama, sp.nama;
 
 -- 4) List requests page RPC used by API.
-create or replace function public.list_material_requests_page(
+create function public.list_material_requests_page(
   p_profile_id uuid,
   p_role text,
   p_limit integer default 20,
