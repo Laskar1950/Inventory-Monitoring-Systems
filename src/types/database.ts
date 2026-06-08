@@ -1,5 +1,17 @@
-export type UserRole = "TEKNISI" | "ADMIN" | "SUPERVISOR";
-export type TransactionStatus = "PENDING" | "APPROVED" | "REJECTED" | "REVISION" | "REJECTED_FINAL" | "COMPLETED" | "CANCELLED";
+export type UserRole = "TEKNISI" | "ADMIN" | "SUPERVISOR" | "LEADER" | "KOORDINATOR" | "MANAGER";
+
+export type TransactionStatus =
+  | "PENDING"
+  | "LEADER_APPROVED"
+  | "WAITING_SIGNATURE"
+  | "KOORDINATOR_SIGNED"
+  | "MANAGER_SIGNED"
+  | "APPROVED"
+  | "REJECTED"
+  | "REVISION"
+  | "REJECTED_FINAL"
+  | "COMPLETED"
+  | "CANCELLED";
 
 export type Profile = {
   id: string;
@@ -34,12 +46,35 @@ export type RequestSummary = {
   request_code: string;
   teknisi_id: string;
   teknisi_nama: string;
+  teknisi_email: string | null;
+  basecamp: string | null;
+  referensi_pekerjaan: string | null;
   status: TransactionStatus;
   catatan_teknisi: string | null;
   catatan_admin: string | null;
+  // Leader
+  leader_id: string | null;
+  leader_nama: string | null;
+  leader_approved_at: string | null;
+  leader_catatan: string | null;
+  // Admin
   approved_by: string | null;
   approved_by_nama: string | null;
   approved_at: string | null;
+  // Koordinator
+  koordinator_id: string | null;
+  koordinator_nama: string | null;
+  koordinator_signed_at: string | null;
+  koordinator_signature_url: string | null;
+  // Manager
+  manager_id: string | null;
+  manager_nama: string | null;
+  manager_signed_at: string | null;
+  manager_signature_url: string | null;
+  // Surat Jalan
+  surat_jalan_number: string | null;
+  surat_jalan_url: string | null;
+  // Aggregates
   created_at: string;
   updated_at: string;
   item_count: number;
@@ -58,6 +93,7 @@ export type RequestItemDetail = {
   qty_requested: number;
   qty_approved: number | null;
   status: TransactionStatus;
+  serial_numbers?: string[];
 };
 
 export type RequestDetail = RequestSummary & {
@@ -94,3 +130,29 @@ export type SerialStatus =
   | "SO_PENDING"
   | "LOST"
   | "DAMAGED";
+
+export type SuratJalanData = {
+  request_code: string;
+  surat_jalan_number: string;
+  teknisi_nama: string;
+  teknisi_email: string | null;
+  basecamp: string | null;
+  referensi_pekerjaan: string | null;
+  created_at: string;
+  approved_at: string | null;
+  admin_nama: string | null;
+  koordinator_nama: string | null;
+  koordinator_signature_url: string | null;
+  koordinator_signed_at: string | null;
+  manager_nama: string | null;
+  manager_signature_url: string | null;
+  manager_signed_at: string | null;
+  items: Array<{
+    no: number;
+    material_nama: string;
+    material_code: string;
+    qty: number;
+    kondisi: string;
+    serial_numbers: string[];
+  }>;
+};
