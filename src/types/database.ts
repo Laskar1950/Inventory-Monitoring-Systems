@@ -73,6 +73,9 @@ export type RequestSummary = {
   supervisor_nama: string | null;
   supervisor_signed_at: string | null;
   supervisor_signature_url: string | null;
+  teknisi_signature_url: string | null;
+  teknisi_signed_at: string | null;
+  received_at: string | null;
   surat_jalan_number: string | null;
   surat_jalan_url: string | null;
   created_at: string;
@@ -149,6 +152,9 @@ export type SuratJalanData = {
   supervisor_nama: string | null;
   supervisor_signature_url: string | null;
   supervisor_signed_at: string | null;
+  teknisi_signature_url: string | null;
+  teknisi_signed_at: string | null;
+  received_at: string | null;
   items: Array<{
     no: number;
     material_nama: string;
