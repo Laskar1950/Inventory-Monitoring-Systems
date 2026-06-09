@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import type { Profile } from "@/types/database";
 import { getInitials } from "@/lib/normalize";
 
-type ExtendedProfile = Profile & { keterangan?: string | null; photo_url?: string | null; signature_url?: string | null; signature_updated_at?: string | null };
+type ExtendedProfile = Profile & { keterangan?: string | null; photo_url?: string | null; signature_url?: string | null; signature_updated_at?: string | null; phone_number?: string | null; company_name?: string | null; basecamp?: string | null };
 
 function SignaturePreview({ path }: { path: string }) {
   const [src, setSrc] = useState("");
@@ -24,6 +24,9 @@ function SignaturePreview({ path }: { path: string }) {
 export function ProfileClient({ profile }: { profile: ExtendedProfile }) {
   const [nama, setNama] = useState(profile.nama || "");
   const [keterangan, setKeterangan] = useState(profile.keterangan || "");
+  const [phoneNumber, setPhoneNumber] = useState(profile.phone_number || "");
+  const [companyName, setCompanyName] = useState(profile.company_name || "");
+  const [basecamp, setBasecamp] = useState(profile.basecamp || "");
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState(profile.photo_url || "");
   const [passwordBaru, setPasswordBaru] = useState("");
@@ -54,6 +57,9 @@ export function ProfileClient({ profile }: { profile: ExtendedProfile }) {
       const formData = new FormData();
       formData.append("nama", nama);
       formData.append("keterangan", keterangan);
+      formData.append("phone_number", phoneNumber);
+      formData.append("company_name", companyName);
+      formData.append("basecamp", basecamp);
       if (photo) formData.append("photo", photo);
       const res = await fetch("/api/profile", { method: "PATCH", body: formData });
       const json = await res.json();
@@ -134,9 +140,12 @@ export function ProfileClient({ profile }: { profile: ExtendedProfile }) {
     </section>
 
     <section className="card">
-      <div className="section-title"><h3>Edit Profil</h3><p>Perbarui nama, keterangan, dan foto profil.</p></div>
+      <div className="section-title"><h3>Edit Profil</h3><p>Perbarui identitas, kontak, perusahaan/basecamp, dan foto profil.</p></div>
       <form className="form-stack" onSubmit={saveProfile}>
         <label><span>Nama</span><input value={nama} onChange={(e) => setNama(e.target.value)} required /></label>
+        <label><span>No HP</span><input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="Contoh: 0813-xxxx-xxxx" /></label>
+        <label><span>Nama Perusahaan</span><input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Contoh: PT. PLN ICONPLUS" /></label>
+        <label><span>Basecamp</span><input value={basecamp} onChange={(e) => setBasecamp(e.target.value)} placeholder="Contoh: KP PURWOKERTO" /></label>
         <label><span>Keterangan</span><textarea value={keterangan} onChange={(e) => setKeterangan(e.target.value)} rows={3} placeholder="Contoh: Teknisi area Purwokerto" /></label>
         <label><span>Foto Profil</span><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => onPhotoChange(e.target.files?.[0] ?? null)} /></label>
         <button className="btn-primary" disabled={savingProfile}>{savingProfile ? "Menyimpan profil..." : <><Save size={16}/> Simpan Profil</>}</button>
