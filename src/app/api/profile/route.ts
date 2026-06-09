@@ -5,13 +5,21 @@ import { createAdminClient } from "@/lib/supabase/admin";
 const MAX_FILE_SIZE = 3 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
+function textOrNull(value: unknown) {
+  const text = String(value ?? "").trim();
+  return text ? text : null;
+}
+
 export async function PATCH(request: Request) {
   const profile = await getSessionProfile();
   if (!profile) return NextResponse.json({ error: "Sesi berakhir." }, { status: 401 });
 
   const formData = await request.formData();
   const nama = String(formData.get("nama") ?? "").trim();
-  const keterangan = String(formData.get("keterangan") ?? "").trim();
+  const keterangan = textOrNull(formData.get("keterangan"));
+  const phone_number = textOrNull(formData.get("phone_number"));
+  const company_name = textOrNull(formData.get("company_name"));
+  const basecamp = textOrNull(formData.get("basecamp"));
   const photo = formData.get("photo") as File | null;
 
   if (!nama) return NextResponse.json({ error: "Nama wajib diisi." }, { status: 400 });
@@ -29,7 +37,7 @@ export async function PATCH(request: Request) {
     if (uploadError) return NextResponse.json({ error: `Foto gagal diupload: ${uploadError.message}` }, { status: 500 });
   }
 
-  const patch: Record<string, string | null> = { nama, keterangan: keterangan || null };
+  const patch: Record<string, string | null> = { nama, keterangan, phone_number, company_name, basecamp };
   if (photoPath) patch.photo_url = photoPath;
 
   const { data, error } = await supabase.from("profiles").update(patch).eq("id", profile.id).select("*").single();
