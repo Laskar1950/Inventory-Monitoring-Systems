@@ -8,7 +8,7 @@ export default async function Page() {
   const supabase = createAdminClient();
   const [{ data: materials }, { data: requests, count }] = await Promise.all([
     supabase.from("materials_with_stock").select("id,material_code,nama,merk,satuan,min_stock,wajib_sn,is_active,gudang_qty,serial_count,created_at,updated_at").order("material_code").limit(100),
-    supabase.from("material_request_summary").select("id,request_code,teknisi_id,teknisi_nama,status,catatan_teknisi,catatan_admin,approved_by,approved_by_nama,approved_at,created_at,updated_at,item_count,total_qty", { count: "exact" }).eq("teknisi_id", profile.id).order("created_at", { ascending: false }).range(0, 19),
+    supabase.from("material_request_summary").select("id,request_code,teknisi_id,teknisi_nama,teknisi_email,teknisi_phone_number,teknisi_company_name,basecamp,referensi_pekerjaan,status,catatan_teknisi,catatan_admin,approved_by,approved_by_nama,approved_at,surat_jalan_number,surat_jalan_url,created_at,updated_at,item_count,total_qty", { count: "exact" }).eq("teknisi_id", profile.id).order("created_at", { ascending: false }).range(0, 19),
   ]);
   const requestIds = (requests ?? []).map((r: any) => r.id);
   const { data: items } = requestIds.length
@@ -24,7 +24,7 @@ export default async function Page() {
   const detailed = (requests ?? []).map((r: any) => ({ ...r, items: itemsMap.get(r.id) ?? [] }));
   return (
     <AppShell profile={profile} title="Permintaan Material">
-      <RequestsClient initialMaterials={(materials ?? []) as any} initialRequests={detailed as any} initialMeta={{ page: 1, limit: 20, total: count ?? 0, totalPages: Math.max(1, Math.ceil((count ?? 0) / 20)) }} />
+      <RequestsClient initialMaterials={(materials ?? []) as any} initialRequests={detailed as any} initialMeta={{ page: 1, limit: 20, total: count ?? 0, totalPages: Math.max(1, Math.ceil((count ?? 0) / 20)) }} requesterProfile={{ basecamp: profile.basecamp ?? "", company_name: profile.company_name ?? "", phone_number: profile.phone_number ?? "" }} />
     </AppShell>
   );
 }
