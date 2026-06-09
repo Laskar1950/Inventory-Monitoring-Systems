@@ -1,4 +1,6 @@
-export function drawPlnIconPlusLogo(doc: PDFKit.PDFDocument, x: number, y: number, scale = 1) {
+import type PDFDocument from "pdfkit";
+
+export function drawPlnIconPlusLogo(doc: PDFDocument, x: number, y: number, scale = 1) {
   const box = 42 * scale;
   doc.save();
   doc.rect(x, y, box, box).fill("#fff200");
