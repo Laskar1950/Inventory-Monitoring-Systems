@@ -6,7 +6,7 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
   const { id } = await context.params;
   const profile = await getSessionProfile();
   if (!profile) return NextResponse.json({ error: "Sesi berakhir." }, { status: 401 });
-  if (profile.role !== "ADMIN" && profile.role !== "SUPERVISOR") return NextResponse.json({ error: "Akses ditolak." }, { status: 403 });
+  if (!["ADMIN", "SUPERVISOR", "LEADER", "KOORDINATOR"].includes(profile.role)) return NextResponse.json({ error: "Akses ditolak." }, { status: 403 });
 
   const supabase = createAdminClient();
   const { data: requestRow, error: requestError } = await supabase
@@ -17,7 +17,7 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
 
   if (requestError || !requestRow) return NextResponse.json({ error: "Request tidak ditemukan." }, { status: 404 });
 
-  const [{ data: itemRows, error: itemError }, { data: movementRows, error: movementError }] = await Promise.all([
+  const [{ data: itemRows, error: itemError }, { data: movementRows, error: movementError }, { data: selectedRows, error: selectedError }] = await Promise.all([
     supabase
       .from("material_request_items")
       .select("id,request_id,material_id,qty_requested,qty_approved,status,materials(material_code,nama,merk,satuan,wajib_sn)")
@@ -30,15 +30,23 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
       .eq("reference_id", id)
       .eq("movement_type", "REQUEST_APPROVED")
       .order("created_at"),
+    supabase
+      .from("material_request_selected_serial_detail")
+      .select("id,request_id,request_item_id,material_id,serial_number_id,serial_number,serial_status,location_type,kondisi,material_code,material_nama,selected_at")
+      .eq("request_id", id)
+      .order("selected_at"),
   ]);
 
   if (itemError) return NextResponse.json({ error: "Gagal memuat item request." }, { status: 500 });
   if (movementError) return NextResponse.json({ error: "Gagal memuat riwayat serial number. Pastikan patch Phase 11 sudah dijalankan." }, { status: 500 });
+  if (selectedError) return NextResponse.json({ error: "Gagal memuat serial number pilihan Admin. Pastikan patch Phase 15A sudah dijalankan." }, { status: 500 });
 
   const movements = movementRows || [];
+  const selectedSerials = selectedRows || [];
   const items = (itemRows || []).map((row: any) => {
     const material = Array.isArray(row.materials) ? row.materials[0] : row.materials;
     const serials = movements.filter((m: any) => m.reference_item_id === row.id || m.material_id === row.material_id);
+    const selected_serials = selectedSerials.filter((s: any) => s.request_item_id === row.id);
     return {
       id: row.id,
       request_id: row.request_id,
@@ -52,8 +60,9 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
       qty_approved: row.qty_approved,
       status: row.status,
       serials,
+      selected_serials,
     };
   });
 
-  return NextResponse.json({ data: { ...requestRow, items, movements } });
+  return NextResponse.json({ data: { ...requestRow, items, movements, selected_serials: selectedSerials } });
 }
