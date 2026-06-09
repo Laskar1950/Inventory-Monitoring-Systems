@@ -16,6 +16,7 @@
     "clsx": "latest",
     "lucide-react": "latest",
     "next": "latest",
+    "pdfkit": "latest",
     "react": "latest",
     "react-dom": "latest",
     "sonner": "latest",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "latest",
+    "@types/pdfkit": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "eslint": "latest",
