@@ -1,6 +1,19 @@
-import type PDFDocument from "pdfkit";
+type PdfDocLike = {
+  save: () => unknown;
+  restore: () => unknown;
+  rect: (x: number, y: number, w: number, h: number) => { fill: (color?: string) => unknown; fillAndStroke?: (fillColor?: string, strokeColor?: string) => unknown; stroke?: () => unknown };
+  lineWidth: (width: number) => PdfDocLike;
+  strokeColor: (color: string) => PdfDocLike;
+  fillColor: (color: string) => PdfDocLike;
+  moveTo: (x: number, y: number) => PdfDocLike;
+  bezierCurveTo: (cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number) => { stroke: () => unknown };
+  polygon: (...points: [number, number][]) => { fill: () => unknown };
+  font: (name: string) => PdfDocLike;
+  fontSize: (size: number) => PdfDocLike;
+  text: (text: string, x?: number, y?: number, options?: Record<string, unknown>) => unknown;
+};
 
-export function drawPlnIconPlusLogo(doc: PDFDocument, x: number, y: number, scale = 1) {
+export function drawPlnIconPlusLogo(doc: PdfDocLike, x: number, y: number, scale = 1) {
   const box = 42 * scale;
   doc.save();
   doc.rect(x, y, box, box).fill("#fff200");
