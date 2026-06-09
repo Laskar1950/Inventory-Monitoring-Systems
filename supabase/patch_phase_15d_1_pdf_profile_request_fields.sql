@@ -1,5 +1,7 @@
 -- Phase 15D-1: Profile and Request fields for Surat Jalan PDF layout
 -- Run after Phase 15A.
+-- Note: material_request_summary is dropped first because PostgreSQL cannot reorder/rename
+-- existing view columns with CREATE OR REPLACE VIEW.
 
 alter table public.profiles add column if not exists phone_number text;
 alter table public.profiles add column if not exists company_name text;
@@ -39,7 +41,11 @@ set
 from public.profiles p
 where p.id = mr.teknisi_id;
 
-create or replace view public.material_request_summary as
+-- Recreate dependent RPC/view safely.
+drop function if exists public.list_material_requests_page(uuid, text, integer, integer);
+drop view if exists public.material_request_summary;
+
+create view public.material_request_summary as
 select
   mr.id,
   mr.request_code,
