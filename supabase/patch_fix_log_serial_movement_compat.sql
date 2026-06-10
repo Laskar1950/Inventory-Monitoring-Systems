@@ -1,6 +1,8 @@
 -- Fix helper untuk error input material:
 -- function public.log_serial_movement(...) does not exist
 -- Jalankan di Supabase SQL Editor, lalu coba input material ulang.
+-- Note: material_serial_movement_detail di-drop dulu karena PostgreSQL tidak bisa
+-- mengubah urutan/nama kolom view lama dengan CREATE OR REPLACE VIEW.
 
 create table if not exists public.material_serial_movements (
   id uuid primary key default gen_random_uuid(),
@@ -105,7 +107,9 @@ begin
 end;
 $$;
 
-create or replace view public.material_serial_movement_detail as
+drop view if exists public.material_serial_movement_detail;
+
+create view public.material_serial_movement_detail as
 select
   msm.id,
   msm.serial_number_id,
