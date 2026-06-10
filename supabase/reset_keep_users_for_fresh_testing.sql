@@ -5,28 +5,37 @@
 
 begin;
 
--- Data workflow dan transaksi
-truncate table if exists public.material_request_item_serials cascade;
-truncate table if exists public.material_serial_movements cascade;
-truncate table if exists public.stock_opname_items cascade;
-truncate table if exists public.stock_opnames cascade;
-truncate table if exists public.material_return_items cascade;
-truncate table if exists public.material_returns cascade;
-truncate table if exists public.material_usage_items cascade;
-truncate table if exists public.material_usages cascade;
-truncate table if exists public.technician_bags cascade;
-truncate table if exists public.material_request_items cascade;
-truncate table if exists public.material_requests cascade;
-
--- Master material dan stok
-truncate table if exists public.material_serial_numbers cascade;
-truncate table if exists public.material_stocks cascade;
-truncate table if exists public.materials cascade;
-
--- Log, notifikasi, dan sequence kode transaksi
-truncate table if exists public.activity_logs cascade;
-truncate table if exists public.notifications cascade;
-truncate table if exists public.transaction_sequences cascade;
+-- PostgreSQL tidak mendukung TRUNCATE TABLE IF EXISTS, jadi pengecekan tabel
+-- dilakukan lewat to_regclass agar script tetap aman untuk database yang skemanya berbeda.
+do $$
+declare
+  table_name text;
+  tables_to_reset text[] := array[
+    'public.material_request_item_serials',
+    'public.material_serial_movements',
+    'public.stock_opname_items',
+    'public.stock_opnames',
+    'public.material_return_items',
+    'public.material_returns',
+    'public.material_usage_items',
+    'public.material_usages',
+    'public.technician_bags',
+    'public.material_request_items',
+    'public.material_requests',
+    'public.material_serial_numbers',
+    'public.material_stocks',
+    'public.materials',
+    'public.activity_logs',
+    'public.notifications',
+    'public.transaction_sequences'
+  ];
+begin
+  foreach table_name in array tables_to_reset loop
+    if to_regclass(table_name) is not null then
+      execute format('truncate table %s cascade', table_name);
+    end if;
+  end loop;
+end $$;
 
 commit;
 
