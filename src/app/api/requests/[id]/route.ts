@@ -25,7 +25,7 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
       .order("created_at"),
     supabase
       .from("material_serial_movement_detail")
-      .select("id,serial_number_id,serial_number,material_id,material_code,material_nama,movement_type,from_location_type,to_location_type,to_teknisi_nama,reference_id,reference_item_id,note,created_at")
+      .select("id,serial_number_id,serial_number,material_id,material_code,material_nama,movement_type,from_location_type,to_location_type,to_teknisi_nama,reference_id,reference_item_id,note:notes,created_at")
       .eq("reference_type", "material_requests")
       .eq("reference_id", id)
       .eq("movement_type", "REQUEST_APPROVED")
@@ -38,8 +38,8 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ id
   ]);
 
   if (itemError) return NextResponse.json({ error: "Gagal memuat item request." }, { status: 500 });
-  if (movementError) return NextResponse.json({ error: "Gagal memuat riwayat serial number. Pastikan patch Phase 11 sudah dijalankan." }, { status: 500 });
-  if (selectedError) return NextResponse.json({ error: "Gagal memuat serial number pilihan Admin. Pastikan patch Phase 15A sudah dijalankan." }, { status: 500 });
+  if (movementError) return NextResponse.json({ error: movementError.message || "Gagal memuat riwayat serial number." }, { status: 500 });
+  if (selectedError) return NextResponse.json({ error: selectedError.message || "Gagal memuat serial number pilihan Admin." }, { status: 500 });
 
   const movements = movementRows || [];
   const selectedSerials = selectedRows || [];
