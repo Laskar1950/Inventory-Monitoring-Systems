@@ -1,0 +1,46 @@
+.modal-backdrop,
+.request-detail-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 24px !important;
+  overflow: hidden !important;
+  z-index: 1000 !important;
+}
+
+.modal {
+  margin: 0 !important;
+  transform-origin: center center !important;
+}
+
+.modal:not(.approval-detail-modal) {
+  width: min(980px, calc(100vw - 48px)) !important;
+}
+
+.approval-detail-modal,
+.material-detail-modal {
+  width: min(1040px, calc(100vw - 48px)) !important;
+}
+
+.modal-body {
+  max-height: calc(100dvh - 210px) !important;
+}
+
+@media (max-width: 720px) {
+  .modal-backdrop,
+  .request-detail-backdrop {
+    padding: 12px !important;
+  }
+
+  .modal,
+  .modal:not(.approval-detail-modal),
+  .approval-detail-modal,
+  .material-detail-modal {
+    width: calc(100vw - 24px) !important;
+    max-height: calc(100dvh - 24px) !important;
+  }
+}
