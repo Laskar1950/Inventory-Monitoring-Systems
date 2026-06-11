@@ -1,46 +1,114 @@
+/* Global modal positioning fix.
+   Semua modal harus fixed ke tengah viewport komputer/browser,
+   bukan mengikuti area content/sidebar/collapse. File ini sengaja di-load terakhir. */
+
 .modal-backdrop,
-.request-detail-backdrop {
+.request-detail-backdrop,
+.material-modal-backdrop {
   position: fixed !important;
   inset: 0 !important;
   width: 100vw !important;
+  height: 100vh !important;
   height: 100dvh !important;
-  display: flex !important;
+  min-width: 100vw !important;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  padding: 24px !important;
+  display: grid !important;
+  place-items: center !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 24px !important;
   overflow: hidden !important;
-  z-index: 1000 !important;
+  background: rgba(30,41,59,.45) !important;
+  backdrop-filter: blur(6px) !important;
+  z-index: 99999 !important;
+  box-sizing: border-box !important;
+  transform: none !important;
 }
 
-.modal {
-  margin: 0 !important;
-  transform-origin: center center !important;
-}
-
-.modal:not(.approval-detail-modal) {
-  width: min(980px, calc(100vw - 48px)) !important;
-}
-
+.modal-backdrop > .modal,
+.request-detail-backdrop > .modal,
+.material-modal-backdrop > .modal,
+.modal,
+.confirm-modal,
+.stock-opname-review-modal,
 .approval-detail-modal,
+.material-step-modal,
 .material-detail-modal {
-  width: min(1040px, calc(100vw - 48px)) !important;
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  margin: 0 auto !important;
+  transform: none !important;
+  translate: none !important;
+  transform-origin: center center !important;
+  box-sizing: border-box !important;
 }
 
-.modal-body {
+.modal-backdrop > .modal,
+.request-detail-backdrop > .modal,
+.material-modal-backdrop > .modal {
+  width: min(980px, calc(100vw - 48px)) !important;
+  max-width: calc(100vw - 48px) !important;
+  max-height: calc(100dvh - 48px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.request-detail-backdrop > .approval-detail-modal,
+.material-modal-backdrop > .material-step-modal,
+.material-modal-backdrop > .material-detail-modal,
+.request-detail-backdrop > .stock-opname-review-modal {
+  width: min(1040px, calc(100vw - 48px)) !important;
+  max-width: calc(100vw - 48px) !important;
+}
+
+.modal-body,
+.stock-opname-review-modal .modal-body,
+.approval-detail-modal .modal-body,
+.material-step-modal .modal-body,
+.material-detail-modal .modal-body {
+  overflow: auto !important;
   max-height: calc(100dvh - 210px) !important;
+  min-width: 0 !important;
+}
+
+.sidebar-collapsed .request-detail-backdrop > .stock-opname-review-modal,
+.sidebar-collapsed .request-detail-backdrop > .approval-detail-modal,
+.sidebar-collapsed .material-modal-backdrop > .material-step-modal,
+.sidebar-collapsed .material-modal-backdrop > .material-detail-modal {
+  transform: none !important;
+  width: min(1040px, calc(100vw - 48px)) !important;
+  max-width: calc(100vw - 48px) !important;
 }
 
 @media (max-width: 720px) {
   .modal-backdrop,
-  .request-detail-backdrop {
+  .request-detail-backdrop,
+  .material-modal-backdrop {
     padding: 12px !important;
   }
 
-  .modal,
-  .modal:not(.approval-detail-modal),
-  .approval-detail-modal,
-  .material-detail-modal {
+  .modal-backdrop > .modal,
+  .request-detail-backdrop > .modal,
+  .material-modal-backdrop > .modal,
+  .request-detail-backdrop > .approval-detail-modal,
+  .material-modal-backdrop > .material-step-modal,
+  .material-modal-backdrop > .material-detail-modal,
+  .request-detail-backdrop > .stock-opname-review-modal {
     width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 24px) !important;
     max-height: calc(100dvh - 24px) !important;
+  }
+
+  .modal-body,
+  .stock-opname-review-modal .modal-body,
+  .approval-detail-modal .modal-body,
+  .material-step-modal .modal-body,
+  .material-detail-modal .modal-body {
+    max-height: calc(100dvh - 180px) !important;
   }
 }
