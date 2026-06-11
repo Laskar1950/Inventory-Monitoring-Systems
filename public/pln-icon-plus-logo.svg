@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="120" viewBox="0 0 360 120" role="img" aria-label="PLN Icon Plus">
+  <rect width="360" height="120" rx="18" fill="white"/>
+  <g transform="translate(18 18)">
+    <rect x="0" y="0" width="84" height="84" rx="10" fill="#fff200"/>
+    <path d="M18 32 C30 21 44 43 62 32" fill="none" stroke="#25a9d8" stroke-width="6" stroke-linecap="round"/>
+    <path d="M18 48 C30 37 44 59 62 48" fill="none" stroke="#25a9d8" stroke-width="6" stroke-linecap="round"/>
+    <path d="M18 64 C30 53 44 75 62 64" fill="none" stroke="#25a9d8" stroke-width="6" stroke-linecap="round"/>
+    <path d="M47 8 L30 47 L45 43 L34 78 L68 34 L51 39 Z" fill="#ed1c24"/>
+  </g>
+  <g transform="translate(122 28)">
+    <text x="0" y="42" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="800" letter-spacing="4" fill="#25a9d8">PLN</text>
+    <text x="2" y="76" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="500" fill="#225b68">Icon Plus</text>
+  </g>
+</svg>
