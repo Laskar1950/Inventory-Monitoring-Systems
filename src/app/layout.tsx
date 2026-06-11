@@ -11,6 +11,7 @@ import "./phase14a.css";
 import "./surat-jalan.css";
 import "../styles/dashboard.css";
 import "./modal-fixes.css";
+import "./ui-polish.css";
 import { Toaster } from "sonner";
 
 const inter = Inter({
