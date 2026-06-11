@@ -38,18 +38,22 @@ async function getData(supabase: SupabaseClient, requestId: string) {
   return { request: request as RequestSummary, items };
 }
 
-async function drawSignature(doc: PDFKit.PDFDocument, supabase: SupabaseClient, x: number, y: number, w: number, imagePath?: string | null) {
+async function drawSignature(doc: PDFKit.PDFDocument, supabase: SupabaseClient, x: number, y: number, w: number, imagePath?: string | null, tall = false) {
   const img = await loadImage(supabase, imagePath);
-  if (img) { try { doc.image(img, x + 10, y, { fit: [w - 20, 42], align: "center" }); return; } catch {} }
-  doc.font("Helvetica").fontSize(6).fillColor("#6b7280").text(imagePath ? "Ditandatangani digital" : "Menunggu tanda tangan", x, y + 16, { width: w, align: "center" }).fillColor("#111827");
+  const h = tall ? 58 : 46;
+  if (img) { try { doc.image(img, x + 8, y + 2, { fit: [w - 16, h], align: "center", valign: "center" }); return; } catch {} }
+  doc.font("Helvetica").fontSize(6).fillColor("#6b7280").text(imagePath ? "Ditandatangani digital" : "Menunggu tanda tangan", x, y + (tall ? 24 : 18), { width: w, align: "center" }).fillColor("#111827");
 }
 
-async function signBlock(doc: PDFKit.PDFDocument, supabase: SupabaseClient, x: number, y: number, w: number, title: string, role: string, name?: string | null, phone?: string | null, company?: string | null, imagePath?: string | null) {
-  doc.font("Helvetica-Bold").fontSize(7).text(title, x, y, { width: w, align: "center" });
-  doc.font("Helvetica").fontSize(6.5).text(role, x, y + 12, { width: w, align: "center" });
-  await drawSignature(doc, supabase, x, y + 25, w, imagePath);
-  doc.font("Helvetica-Bold").fontSize(6.5).text(personLine(name, phone), x, y + 72, { width: w, align: "center" });
-  doc.font("Helvetica").fontSize(6.3).text(company || "-", x, y + 83, { width: w, align: "center" });
+async function signBlock(doc: PDFKit.PDFDocument, supabase: SupabaseClient, x: number, y: number, w: number, title: string, role: string, name?: string | null, phone?: string | null, company?: string | null, imagePath?: string | null, tall = false) {
+  const blockH = tall ? 138 : 122;
+  doc.rect(x, y, w, blockH).stroke();
+  doc.font("Helvetica-Bold").fontSize(6.5).text(title, x + 4, y + 6, { width: w - 8, align: "center", height: 18 });
+  doc.font("Helvetica").fontSize(6.2).text(role, x + 4, y + 26, { width: w - 8, align: "center" });
+  doc.rect(x + 7, y + 39, w - 14, tall ? 64 : 52).dash(2, { space: 2 }).strokeColor("#cbd5e1").stroke().undash().strokeColor("#111827");
+  await drawSignature(doc, supabase, x + 7, y + 41, w - 14, imagePath, tall);
+  doc.font("Helvetica-Bold").fontSize(6.2).text(personLine(name, phone), x + 4, y + (tall ? 108 : 95), { width: w - 8, align: "center" });
+  doc.font("Helvetica").fontSize(5.8).text(company || "-", x + 4, y + (tall ? 120 : 106), { width: w - 8, align: "center" });
 }
 
 export async function generateSuratJalanPdf(supabase: SupabaseClient, requestId: string) {
@@ -63,6 +67,7 @@ export async function generateSuratJalanPdf(supabase: SupabaseClient, requestId:
   const done = new Promise<Buffer>((resolve, reject) => { doc.on("end", () => resolve(Buffer.concat(chunks))); doc.on("error", reject); });
 
   const pageW = doc.page.width;
+  const pageH = doc.page.height;
   const startX = 30;
   const usableW = pageW - 60;
 
@@ -86,26 +91,36 @@ export async function generateSuratJalanPdf(supabase: SupabaseClient, requestId:
   const rows = items.length > 0 ? items.map((item, index) => [index + 1, item.material_nama, item.material_code, item.qty_approved ?? item.qty_requested, item.kondisi || "-", item.wajib_sn ? item.serials.join(", ") : "Non Serial"]) : [[1, "-", "-", 0, "-", "-"]];
   for (const row of rows) {
     const rowH = Math.max(16, Math.ceil(String(row[5]).length / 38) * 12);
-    if (y + rowH > 575) { doc.addPage(); y = 40; }
+    if (y + rowH > 500) { doc.addPage(); y = 40; }
     x = startX; widths.forEach((w, i) => { cell(doc, row[i], x, y, w, rowH, i === 0 || i === 3 || i === 4); x += w; }); y += rowH;
   }
 
   y += 10;
-  if (y > 560) { doc.addPage(); y = 40; }
+  if (y > 485) { doc.addPage(); y = 40; }
   doc.font("Helvetica-Bold").fontSize(7).text("Catatan: Barang telah diterima dan diperiksa oleh pihak penerima dalam kondisi baik dan lengkap.", startX, y, { underline: true });
-  y += 18;
-  const leftW = 125;
-  const midW = 225;
-  const rightW = (usableW - leftW - midW) / 2;
-  await signBlock(doc, supabase, startX, y, leftW, "Yang Menyerahkan", "Tim Gudang", request.approved_by_nama, request.approved_by_phone_number, request.approved_by_company_name || "PLN ICONPLUS", request.admin_signature_url);
-  const midX = startX + leftW + 8;
-  doc.rect(midX, y - 4, midW, 96).stroke();
+  y += 16;
+
+  doc.rect(startX, y, usableW, 58).stroke();
   const checklist = [["Material Telah Disiapkan", formatDateTime(request.admin_signed_at || request.approved_at), true], ["Waktu Pengambilan Material", "", false], ["Durasi Transaksi", "", false], ["Catatan", request.catatan_admin || "", false], ["Penerima", request.teknisi_nama || "-", false]] as const;
-  let cy = y + 2;
-  for (const [label, value, checked] of checklist) { doc.font("Helvetica-Bold").fontSize(6.5).text(label, midX + 5, cy, { width: 95 }); doc.font("Helvetica").text(":", midX + 104, cy); doc.font("Helvetica-Bold").text(value, midX + 116, cy, { width: 78 }); doc.rect(midX + midW - 18, cy - 1, 8, 8).strokeColor("#f59e0b").stroke(); if (checked) doc.font("Helvetica-Bold").fontSize(8).fillColor("#f59e0b").text("✓", midX + midW - 17, cy - 3); doc.fillColor("#111827").strokeColor("#111827"); cy += 13; }
-  const rightX = midX + midW + 8;
-  await signBlock(doc, supabase, rightX, y, rightW, "Yang Bertanggung Jawab atas Permintaan Material", "Tim Management", request.koordinator_nama, request.koordinator_phone_number, request.koordinator_company_name || "PLN ICONPLUS", request.koordinator_signature_url);
-  await signBlock(doc, supabase, rightX + rightW, y, rightW, "Mengetahui & Menyetujui", "Tim Leader Pemeliharaan", request.supervisor_nama, request.supervisor_phone_number, request.supervisor_company_name || "PT. PLN ICONPLUS", request.supervisor_signature_url);
+  let cy = y + 6;
+  for (const [label, value, checked] of checklist) {
+    doc.font("Helvetica-Bold").fontSize(6.5).text(label, startX + 8, cy, { width: 118 });
+    doc.font("Helvetica").text(":", startX + 132, cy);
+    doc.font("Helvetica-Bold").text(value, startX + 142, cy, { width: usableW - 176 });
+    doc.rect(startX + usableW - 18, cy - 1, 8, 8).strokeColor("#f59e0b").stroke();
+    if (checked) doc.font("Helvetica-Bold").fontSize(8).fillColor("#f59e0b").text("✓", startX + usableW - 17, cy - 3);
+    doc.fillColor("#111827").strokeColor("#111827");
+    cy += 10;
+  }
+
+  const signY = Math.max(y + 74, pageH - 168);
+  const gap = 6;
+  const w = (usableW - gap * 4) / 5;
+  await signBlock(doc, supabase, startX, signY, w, "Yang Menyerahkan", "Admin Gudang", request.approved_by_nama, request.approved_by_phone_number, request.approved_by_company_name || "PLN ICONPLUS", request.admin_signature_url);
+  await signBlock(doc, supabase, startX + (w + gap), signY, w, "Koordinator Mitra", "Koordinator", request.koordinator_nama, request.koordinator_phone_number, request.koordinator_company_name || "PLN ICONPLUS", request.koordinator_signature_url);
+  await signBlock(doc, supabase, startX + (w + gap) * 2, signY, w, "Mengetahui & Menyetujui", "Supervisor", request.supervisor_nama, request.supervisor_phone_number, request.supervisor_company_name || "PT. PLN ICONPLUS", request.supervisor_signature_url);
+  await signBlock(doc, supabase, startX + (w + gap) * 3, signY, w, "Yang Menerima", "Teknisi", request.teknisi_nama, request.teknisi_phone_number, request.teknisi_company_name || "-", request.teknisi_signature_url, true);
+  await signBlock(doc, supabase, startX + (w + gap) * 4, signY, w, "BAST Final", "Penerimaan Material", request.received_at ? "Selesai" : "Menunggu", null, request.received_at ? formatDateTime(request.received_at) : "Menunggu penerimaan teknisi", null);
 
   doc.end();
   const pdfBuffer = await done;
