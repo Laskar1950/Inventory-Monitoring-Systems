@@ -77,9 +77,27 @@
   padding: 7px;
 }
 
+.sj-company {
+  max-width: 330px;
+  line-height: 1.25 !important;
+}
+
+.sj-company strong {
+  display: block;
+  font-size: 10px !important;
+  letter-spacing: .02em;
+  margin-bottom: 3px;
+}
+
+.sj-company span {
+  display: block;
+  font-size: 7.2px;
+  color: #111827;
+}
+
 .sj-logo-img {
-  width: 150px;
-  height: 54px;
+  width: 176px;
+  height: 68px;
   object-fit: contain;
   display: block;
 }
@@ -97,55 +115,106 @@
   margin-top: auto;
   padding-top: 18px;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: 150px 1fr 180px 180px;
   gap: 10px;
   align-items: stretch;
+  font-size: 7px;
+  text-align: center;
 }
 
 .sj-sign-box {
-  min-height: 142px;
-  border: 1px solid #111;
-  padding: 7px 5px;
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: flex-start;
+  padding: 4px 5px;
+  border: 0;
 }
 
 .sj-sign-box strong {
-  min-height: 22px;
+  min-height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
+  line-height: 1.15;
 }
 
 .sj-sign-space {
-  height: 72px;
-  margin-top: 8px;
+  height: 66px;
+  width: 100%;
+  margin-top: 6px;
   margin-bottom: 4px;
-  border: 1px dashed #cbd5e1;
-  border-radius: 4px;
+  border: 0;
+  border-radius: 0;
   align-items: center;
-  background: #f8fafc;
-}
-
-.sj-sign-box.sj-technician-sign .sj-sign-space {
-  height: 92px;
-  background: #fff;
+  background: transparent;
 }
 
 .sj-sign-img {
-  max-height: 68px;
+  max-width: 96%;
+  max-height: 64px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
 }
 
-.sj-sign-box.sj-technician-sign .sj-sign-img {
-  max-height: 86px;
+.sj-checklist.sj-receive-box {
+  margin-top: 0;
+  min-height: 136px;
+  border: 1px solid #111;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.sj-checklist {
-  margin-top: 12px;
-  min-height: auto;
+.sj-receive-line {
+  display: grid;
+  grid-template-columns: 180px 10px 1fr 14px;
+  gap: 5px;
+  align-items: start;
+  text-align: left;
+  margin-bottom: 4px;
+}
+
+.sj-receive-line strong,
+.sj-receive-line span {
+  font-size: 6.8px;
+  line-height: 1.2;
+}
+
+.sj-receive-line input {
+  width: 9px;
+  height: 9px;
+  accent-color: #f59e0b;
+}
+
+.sj-technician-inline-sign {
+  margin-top: 6px;
+  border-top: 1px solid #111;
+  padding-top: 5px;
+}
+
+.sj-technician-inline-sign .sj-sign-space {
+  height: 52px;
+  margin: 0 0 3px;
+  border: 1px dashed #cbd5e1;
+  background: #fff;
+}
+
+.sj-technician-inline-sign .sj-sign-img {
+  max-height: 48px;
+}
+
+.sj-technician-inline-sign b,
+.sj-technician-inline-sign small {
+  display: block;
+  text-align: center;
 }
 
 @media print {
-  .sj-sign-space {
+  .sj-sign-space,
+  .sj-technician-inline-sign .sj-sign-space {
     background: #fff !important;
   }
 }
