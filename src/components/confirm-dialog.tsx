@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { AlertTriangle } from "lucide-react";
+import { ViewportModal } from "@/components/viewport-modal";
 
 type ConfirmDialogProps = {
   open: boolean;
@@ -31,7 +32,7 @@ export function ConfirmDialog({
   if (!open) return null;
   const confirmClass = variant === "danger" ? "btn-danger" : "btn-primary";
 
-  return <div className="modal-backdrop">
+  return <ViewportModal>
     <div className="confirm-modal">
       <div className="confirm-icon">{icon ?? <AlertTriangle size={24} />}</div>
       <h3>{title}</h3>
@@ -41,5 +42,5 @@ export function ConfirmDialog({
         <button className={confirmClass} type="button" onClick={onConfirm} disabled={loading}>{loading ? "Memproses..." : confirmLabel}</button>
       </div>
     </div>
-  </div>;
+  </ViewportModal>;
 }
