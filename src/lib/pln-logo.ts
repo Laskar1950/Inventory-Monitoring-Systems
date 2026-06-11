@@ -14,25 +14,32 @@ type PdfDocLike = {
 };
 
 export function drawPlnIconPlusLogo(doc: PdfDocLike, x: number, y: number, scale = 1) {
-  const box = 42 * scale;
+  const mark = 74 * scale;
   doc.save();
-  doc.rect(x, y, box, box).fill("#fff200");
-  doc.lineWidth(2.2 * scale).strokeColor("#25a9d8");
+
+  doc.rect(x, y, mark, mark).fill("#fff200");
+  doc.lineWidth(4.6 * scale).strokeColor("#26a9d6");
   for (let i = 0; i < 3; i++) {
-    const yy = y + (16 + i * 9) * scale;
-    doc.moveTo(x + 8 * scale, yy).bezierCurveTo(x + 16 * scale, yy - 5 * scale, x + 23 * scale, yy + 5 * scale, x + 31 * scale, yy).stroke();
+    const yy = y + (28 + i * 11) * scale;
+    doc.moveTo(x + 15 * scale, yy)
+      .bezierCurveTo(x + 25 * scale, yy - 7 * scale, x + 36 * scale, yy + 7 * scale, x + 47 * scale, yy)
+      .bezierCurveTo(x + 57 * scale, yy - 6 * scale, x + 65 * scale, yy + 2 * scale, x + 70 * scale, yy - 2 * scale)
+      .stroke();
   }
+
   doc.fillColor("#ed1c24");
   doc.polygon(
-    [x + 22 * scale, y + 5 * scale],
-    [x + 14 * scale, y + 25 * scale],
-    [x + 22 * scale, y + 23 * scale],
-    [x + 16 * scale, y + 40 * scale],
-    [x + 33 * scale, y + 17 * scale],
-    [x + 24 * scale, y + 20 * scale]
+    [x + 43 * scale, y + 10 * scale],
+    [x + 27 * scale, y + 42 * scale],
+    [x + 41 * scale, y + 38 * scale],
+    [x + 31 * scale, y + 68 * scale],
+    [x + 60 * scale, y + 27 * scale],
+    [x + 46 * scale, y + 31 * scale]
   ).fill();
-  const textX = x + 56 * scale;
-  doc.font("Helvetica-Bold").fontSize(34 * scale).fillColor("#25a9d8").text("PLN", textX, y - 2 * scale, { width: 160 * scale });
-  doc.font("Helvetica").fontSize(20 * scale).fillColor("#225b68").text("Icon Plus", textX, y + 29 * scale, { width: 170 * scale });
+
+  const textX = x + 94 * scale;
+  doc.font("Helvetica-Bold").fontSize(78 * scale).fillColor("#2aa7d7").text("PLN", textX, y - 6 * scale, { width: 180 * scale, characterSpacing: 7 * scale });
+  doc.font("Helvetica").fontSize(42 * scale).fillColor("#245b66").text("Icon Plus", textX, y + 63 * scale, { width: 220 * scale });
+
   doc.restore();
 }
