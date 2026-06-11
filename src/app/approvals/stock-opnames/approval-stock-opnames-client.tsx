@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Eye, RefreshCcw, RotateCcw, Save, X } from "lucide-react";
 import { toast } from "sonner";
+import { ViewportModal } from "@/components/viewport-modal";
 
 type StockOpnameSummary = { id: string; so_code: string; teknisi_nama: string; status: string; catatan_teknisi: string | null; created_at: string; item_count: number; total_system_qty: number; total_physical_qty: number; total_selisih: number; problem_count: number; materials?: string | null };
 type StockOpnameItem = { id: string; stock_opname_id: string; material_code: string; material_nama: string; merk: string; satuan: string; wajib_sn: boolean; serial_number: string | null; qty_system: number; qty_physical: number; selisih: number; kondisi_fisik: string; foto_url: string; status_review: "PENDING" | "APPROVED" | "REVISION" | "REJECTED_FINAL"; catatan_admin: string | null };
@@ -72,12 +73,8 @@ export function ApprovalStockOpnamesClient() {
   useEffect(() => { void loadData(); }, []);
 
   const selectedSummary = useMemo(() => summaries.find((row) => row.id === selectedId) || null, [summaries, selectedId]);
-
-  // Saat review PENDING: tampilkan semua item
-  // Saat review ulang REVISION: tampilkan SEMUA item (supaya admin lihat konteks), tapi hanya item REVISION yang bisa diubah
   const selectedItems = useMemo(() => items.filter((item) => item.stock_opname_id === selectedId), [items, selectedId]);
 
-  // Hitung berapa item REVISION per SO
   function getRevisionCount(soId: string) {
     return items.filter((item) => item.stock_opname_id === soId && item.status_review === "REVISION").length;
   }
@@ -85,12 +82,10 @@ export function ApprovalStockOpnamesClient() {
   function openReview(summary: StockOpnameSummary, mode: "review" | "detail") {
     const initial: ReviewState = {};
     for (const item of items.filter((i) => i.stock_opname_id === summary.id)) {
-      // Saat review PENDING: default semua APPROVED
-      // Saat review ulang REVISION: pertahankan status existing, item REVISION default APPROVED
       const currentStatus = item.status_review;
       initial[item.id] = {
         status_review: (currentStatus === "APPROVED" || currentStatus === "REVISION" || currentStatus === "REJECTED_FINAL")
-          ? (currentStatus === "REVISION" ? "APPROVED" : currentStatus)  // item REVISION default ke APPROVED saat review ulang
+          ? (currentStatus === "REVISION" ? "APPROVED" : currentStatus)
           : "APPROVED",
         catatan_admin: item.catatan_admin || "",
       };
@@ -109,7 +104,6 @@ export function ApprovalStockOpnamesClient() {
     if (!selectedSummary) return;
     setError(null);
 
-    // Saat review ulang REVISION: hanya kirim item yang masih REVISION (belum diselesaikan)
     const itemsToReview = selectedSummary.status === "REVISION"
       ? selectedItems.filter((item) => item.status_review === "REVISION")
       : selectedItems;
@@ -226,9 +220,8 @@ export function ApprovalStockOpnamesClient() {
         </table>
       </div>
 
-      {/* ===== MODAL REVIEW / REVIEW ULANG / DETAIL ===== */}
       {selectedSummary && (
-        <div className="modal-backdrop request-detail-backdrop">
+        <ViewportModal backdropClassName="modal-backdrop request-detail-backdrop">
           <div className="modal stock-opname-review-modal">
             <div className="modal-header compact">
               <div>
@@ -258,7 +251,6 @@ export function ApprovalStockOpnamesClient() {
                 </div>
               )}
 
-              {/* Info banner saat review ulang revisi */}
               {reviewMode === "review" && selectedSummary.status === "REVISION" && (
                 <div className="alert-info" style={{ marginBottom: 12, padding: "10px 14px", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.25)", borderRadius: 8, fontSize: "0.8rem", color: "#1d4ed8" }}>
                   ℹ️ Item yang sudah <strong>APPROVED</strong> sebelumnya tidak perlu direview ulang.
@@ -283,7 +275,6 @@ export function ApprovalStockOpnamesClient() {
                   </thead>
                   <tbody>
                     {selectedItems.map((item) => {
-                      // Saat review mode REVISION: hanya item REVISION yang bisa diubah
                       const isEditable = reviewMode === "review" &&
                         (selectedSummary.status === "PENDING" ||
                         (selectedSummary.status === "REVISION" && item.status_review === "REVISION"));
@@ -373,7 +364,7 @@ export function ApprovalStockOpnamesClient() {
               )}
             </div>
           </div>
-        </div>
+        </ViewportModal>
       )}
     </section>
   );
