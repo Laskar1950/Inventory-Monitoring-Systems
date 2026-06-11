@@ -1,0 +1,151 @@
+.request-page-card {
+  padding-top: 24px;
+}
+
+.request-page-header {
+  align-items: center !important;
+  margin-bottom: 22px !important;
+}
+
+.request-add-button {
+  min-width: 220px;
+  min-height: 48px;
+  border-radius: 14px;
+  white-space: nowrap;
+}
+
+.request-toolbar {
+  margin-top: 2px;
+  margin-bottom: 18px;
+  padding-top: 2px;
+  gap: 18px;
+}
+
+.request-search-input {
+  max-width: 420px;
+}
+
+.btn-detail-blue {
+  border: 1px solid #bfdbfe;
+  background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+  color: #1d4ed8;
+  border-radius: 10px;
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.08);
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease, color .18s ease;
+}
+
+.btn-detail-blue:hover {
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+  border-color: #1d4ed8;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+}
+
+.brand-logo-image {
+  width: 76px;
+  height: 54px;
+  border-radius: 18px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #dbeafe;
+  box-shadow: 0 12px 26px rgba(37, 99, 235, 0.10);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.brand-logo-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.sidebar-collapsed .brand-logo-image {
+  width: 48px;
+  height: 48px;
+  padding: 7px;
+}
+
+.sj-logo-img {
+  width: 150px;
+  height: 54px;
+  object-fit: contain;
+  display: block;
+}
+
+.sj-sheet {
+  display: flex;
+  flex-direction: column;
+}
+
+.sj-material-table {
+  margin-bottom: 10px;
+}
+
+.sj-bottom-grid.sj-signature-grid {
+  margin-top: auto;
+  padding-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+.sj-sign-box {
+  min-height: 142px;
+  border: 1px solid #111;
+  padding: 7px 5px;
+  justify-content: flex-start;
+}
+
+.sj-sign-box strong {
+  min-height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sj-sign-space {
+  height: 72px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 4px;
+  align-items: center;
+  background: #f8fafc;
+}
+
+.sj-sign-box.sj-technician-sign .sj-sign-space {
+  height: 92px;
+  background: #fff;
+}
+
+.sj-sign-img {
+  max-height: 68px;
+}
+
+.sj-sign-box.sj-technician-sign .sj-sign-img {
+  max-height: 86px;
+}
+
+.sj-checklist {
+  margin-top: 12px;
+  min-height: auto;
+}
+
+@media print {
+  .sj-sign-space {
+    background: #fff !important;
+  }
+}
