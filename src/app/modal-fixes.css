@@ -32,6 +32,7 @@
 .modal,
 .confirm-modal,
 .stock-opname-review-modal,
+.stock-opname-create-modal,
 .approval-detail-modal,
 .material-step-modal,
 .material-detail-modal {
@@ -66,6 +67,34 @@
   max-width: calc(100vw - 48px) !important;
 }
 
+.modal-backdrop > .stock-opname-create-modal,
+.stock-opname-create-modal {
+  width: min(1180px, calc(100vw - 48px)) !important;
+  max-width: calc(100vw - 48px) !important;
+  max-height: calc(100dvh - 48px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  overflow: hidden !important;
+}
+
+.stock-opname-create-modal .stock-opname-create-form {
+  min-height: 0 !important;
+  overflow: auto !important;
+  padding-right: 2px !important;
+}
+
+.stock-opname-create-modal .stock-opname-create-table,
+.stock-opname-create-table {
+  min-width: 0 !important;
+  max-height: min(48vh, 520px) !important;
+  overflow: auto !important;
+}
+
+.stock-opname-create-table table {
+  min-width: 980px !important;
+}
+
 .modal-body,
 .stock-opname-review-modal .modal-body,
 .approval-detail-modal .modal-body,
@@ -79,10 +108,15 @@
 .sidebar-collapsed .request-detail-backdrop > .stock-opname-review-modal,
 .sidebar-collapsed .request-detail-backdrop > .approval-detail-modal,
 .sidebar-collapsed .material-modal-backdrop > .material-step-modal,
-.sidebar-collapsed .material-modal-backdrop > .material-detail-modal {
+.sidebar-collapsed .material-modal-backdrop > .material-detail-modal,
+.sidebar-collapsed .modal-backdrop > .stock-opname-create-modal {
   transform: none !important;
   width: min(1040px, calc(100vw - 48px)) !important;
   max-width: calc(100vw - 48px) !important;
+}
+
+.sidebar-collapsed .modal-backdrop > .stock-opname-create-modal {
+  width: min(1180px, calc(100vw - 48px)) !important;
 }
 
 .clean-card-header > .section-header,
@@ -120,7 +154,8 @@
   .request-detail-backdrop > .approval-detail-modal,
   .material-modal-backdrop > .material-step-modal,
   .material-modal-backdrop > .material-detail-modal,
-  .request-detail-backdrop > .stock-opname-review-modal {
+  .request-detail-backdrop > .stock-opname-review-modal,
+  .modal-backdrop > .stock-opname-create-modal {
     width: calc(100vw - 24px) !important;
     max-width: calc(100vw - 24px) !important;
     max-height: calc(100dvh - 24px) !important;
@@ -132,5 +167,10 @@
   .material-step-modal .modal-body,
   .material-detail-modal .modal-body {
     max-height: calc(100dvh - 180px) !important;
+  }
+
+  .stock-opname-create-modal .stock-opname-create-table,
+  .stock-opname-create-table {
+    max-height: 44vh !important;
   }
 }
