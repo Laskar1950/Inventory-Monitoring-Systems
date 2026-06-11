@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { BarChart3, Bell, Boxes, ChevronLeft, ChevronRight, ClipboardList, FileSignature, FileText, LayoutDashboard, LogOut, Menu, Moon, Package, ShieldCheck, Sun, UserRound, X, Zap } from "lucide-react";
+import { BarChart3, Bell, Boxes, ChevronLeft, ChevronRight, ClipboardList, FileSignature, FileText, LayoutDashboard, LogOut, Menu, Moon, Package, ShieldCheck, Sun, UserRound, X } from "lucide-react";
 import type { Profile, UserRole } from "@/types/database";
 import { getInitials } from "@/lib/normalize";
 
@@ -43,7 +43,7 @@ export function AppShellClient({ profile, title, children }: { profile: ExtProfi
   return <div className={layoutClass}>
     <aside className="sidebar">
       <div className="sidebar-header shell-logo-header">
-        <Link href="/dashboard" className="brand-logo-only" title="PLN ICONPLUS Inventory Systems"><Zap size={26} strokeWidth={3} fill="currentColor" /></Link>
+        <Link href="/dashboard" className="brand-logo-only brand-logo-image" title="PLN ICONPLUS Inventory Systems"><img src="/pln-icon-plus-logo.svg" alt="PLN Icon Plus" /></Link>
         <button className="sidebar-collapse-btn mobile-only" type="button" onClick={() => setMobileOpen(false)}><X size={16} /></button>
       </div>
       <button className="sidebar-collapse-row desktop-only" type="button" onClick={toggleCollapsed}><span>{collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}</span><b>Collapse</b></button>
