@@ -85,6 +85,28 @@
   max-width: calc(100vw - 48px) !important;
 }
 
+.clean-card-header > .section-header,
+.card.clean-card-header > .section-header,
+.stock-opname-page-header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-bottom: 16px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.clean-card-header > .section-header .action-row,
+.card.clean-card-header > .section-header .action-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
 @media (max-width: 720px) {
   .modal-backdrop,
   .request-detail-backdrop,
