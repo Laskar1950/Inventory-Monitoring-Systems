@@ -9,8 +9,8 @@ import "./phase10e.css";
 import "./phase12.css";
 import "./phase14a.css";
 import "./surat-jalan.css";
-import "./modal-fixes.css";
 import "../styles/dashboard.css";
+import "./modal-fixes.css";
 import { Toaster } from "sonner";
 
 const inter = Inter({
