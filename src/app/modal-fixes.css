@@ -50,13 +50,20 @@
 
 .modal-backdrop > .modal,
 .request-detail-backdrop > .modal,
-.material-modal-backdrop > .modal {
+.material-modal-backdrop > .modal,
+.modal-backdrop > .confirm-modal,
+.request-detail-backdrop > .confirm-modal,
+.material-modal-backdrop > .confirm-modal {
   width: min(980px, calc(100vw - 48px)) !important;
   max-width: calc(100vw - 48px) !important;
   max-height: calc(100dvh - 48px) !important;
   display: flex !important;
   flex-direction: column !important;
   overflow: hidden !important;
+}
+
+.modal-backdrop > .confirm-modal:not(.stock-opname-create-modal) {
+  width: min(460px, calc(100vw - 48px)) !important;
 }
 
 .request-detail-backdrop > .approval-detail-modal,
@@ -78,6 +85,31 @@
   overflow: hidden !important;
 }
 
+.modal-header,
+.modal-footer,
+.confirm-actions {
+  flex: 0 0 auto !important;
+}
+
+.modal-body,
+.stock-opname-review-modal .modal-body,
+.approval-detail-modal .modal-body,
+.material-step-modal .modal-body,
+.material-detail-modal .modal-body {
+  overflow: auto !important;
+  max-height: calc(100dvh - 210px) !important;
+  min-width: 0 !important;
+}
+
+.modal .table-wrap,
+.approval-detail-modal .table-wrap,
+.stock-opname-review-modal .table-wrap,
+.material-step-modal .table-wrap,
+.material-detail-modal .table-wrap {
+  min-width: 0 !important;
+  overflow: auto !important;
+}
+
 .stock-opname-create-modal .stock-opname-create-form {
   min-height: 0 !important;
   overflow: auto !important;
@@ -95,23 +127,15 @@
   min-width: 980px !important;
 }
 
-.modal-body,
-.stock-opname-review-modal .modal-body,
-.approval-detail-modal .modal-body,
-.material-step-modal .modal-body,
-.material-detail-modal .modal-body {
-  overflow: auto !important;
-  max-height: calc(100dvh - 210px) !important;
-  min-width: 0 !important;
-}
-
+.sidebar-collapsed .modal-backdrop > .modal,
+.sidebar-collapsed .request-detail-backdrop > .modal,
+.sidebar-collapsed .material-modal-backdrop > .modal,
+.sidebar-collapsed .modal-backdrop > .confirm-modal,
 .sidebar-collapsed .request-detail-backdrop > .stock-opname-review-modal,
 .sidebar-collapsed .request-detail-backdrop > .approval-detail-modal,
 .sidebar-collapsed .material-modal-backdrop > .material-step-modal,
-.sidebar-collapsed .material-modal-backdrop > .material-detail-modal,
-.sidebar-collapsed .modal-backdrop > .stock-opname-create-modal {
+.sidebar-collapsed .material-modal-backdrop > .material-detail-modal {
   transform: none !important;
-  width: min(1040px, calc(100vw - 48px)) !important;
   max-width: calc(100vw - 48px) !important;
 }
 
@@ -151,6 +175,9 @@
   .modal-backdrop > .modal,
   .request-detail-backdrop > .modal,
   .material-modal-backdrop > .modal,
+  .modal-backdrop > .confirm-modal,
+  .request-detail-backdrop > .confirm-modal,
+  .material-modal-backdrop > .confirm-modal,
   .request-detail-backdrop > .approval-detail-modal,
   .material-modal-backdrop > .material-step-modal,
   .material-modal-backdrop > .material-detail-modal,
@@ -159,6 +186,10 @@
     width: calc(100vw - 24px) !important;
     max-width: calc(100vw - 24px) !important;
     max-height: calc(100dvh - 24px) !important;
+  }
+
+  .modal-backdrop > .confirm-modal:not(.stock-opname-create-modal) {
+    width: min(460px, calc(100vw - 24px)) !important;
   }
 
   .modal-body,
