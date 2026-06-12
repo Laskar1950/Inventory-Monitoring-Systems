@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { FileText, Plus, RefreshCcw, Search, Trash2, X } from "lucide-react";
+import { CheckCircle2, FileText, Plus, RefreshCcw, Search, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { TableSkeleton } from "@/components/table-skeleton";
 import { PaginationBar } from "@/components/pagination-bar";
@@ -30,6 +30,7 @@ export function RequestsClient({ initialMaterials, initialRequests, initialMeta,
   const [referensiPekerjaan, setReferensiPekerjaan] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [receivingId, setReceivingId] = useState("");
 
   const activeMaterials = useMemo(() => materials.filter((m) => m.is_active && Number(m.gudang_qty ?? 0) > 0), [materials]);
   const selectedMaterial = activeMaterials.find((m) => m.id === selectedMaterialId);
@@ -78,11 +79,24 @@ export function RequestsClient({ initialMaterials, initialRequests, initialMeta,
     finally { setLoading(false); }
   }
 
+  async function receiveMaterial(row: RequestDetail) {
+    if (!window.confirm(`Terima material untuk ${row.request_code}? Tanda tangan profil Anda akan masuk ke BAST dan status request menjadi selesai.`)) return;
+    setReceivingId(row.id);
+    try {
+      const res = await fetch(`/api/requests/${row.id}/receive`, { method: "POST" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || json.warning || "Gagal menerima material.");
+      toast.success(json.message || "Material berhasil diterima.");
+      await refresh(meta.page);
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Gagal menerima material."); }
+    finally { setReceivingId(""); }
+  }
+
   return <>
     <section className="card request-page-card">
       <div className="section-header request-page-header"><div className="section-title"><h3>Permintaan Material</h3><p>Buat request material dari stok gudang. Request akan masuk ke Leader dengan status Pending.</p></div><button className="btn-primary request-add-button" onClick={() => setOpen(true)}><Plus size={16} /> Tambah Permintaan</button></div>
       <div className="table-toolbar request-toolbar"><div className="search-input request-search-input"><div style={{ position: "relative" }}><Search size={16} style={{ position: "absolute", left: 12, top: 14, color: "#94A3B8" }} /><input className="form-control" style={{ paddingLeft: 38 }} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari request, status, material, basecamp, project..." /></div></div><button className="btn-ghost" onClick={() => void refresh(meta.page)} disabled={loading}><RefreshCcw size={15} /> Refresh</button></div>
-      <div className="table-wrap"><table><thead><tr><th>Kode Request</th><th>Surat Jalan</th><th>Tanggal</th><th>Basecamp</th><th>Referensi</th><th>Item</th><th>Total Qty</th><th>Status</th><th>Catatan Admin</th><th>Aksi</th></tr></thead><tbody>{loading ? <TableSkeleton rows={6} columns={10} /> : filteredRequests.map((r) => <tr key={r.id}><td><strong>{r.request_code}</strong></td><td>{r.surat_jalan_number || "-"}</td><td>{formatDate(r.created_at)}</td><td>{r.basecamp || "-"}</td><td>{r.referensi_pekerjaan || "-"}</td><td>{itemNames(r.items)}</td><td><strong>{r.total_qty}</strong></td><td><span className={statusClass(r.status)}>{statusText(r.status)}</span></td><td>{r.catatan_admin ?? "-"}</td><td><div className="action-row"><a className="btn-detail-blue" href={`/surat-jalan/${r.id}`} target="_blank"><FileText size={14}/> Detail</a></div></td></tr>)}{!loading && filteredRequests.length === 0 && <tr><td colSpan={10}><div className="empty-state">Belum ada request material.</div></td></tr>}</tbody></table></div>
+      <div className="table-wrap"><table><thead><tr><th>Kode Request</th><th>Surat Jalan</th><th>Tanggal</th><th>Basecamp</th><th>Referensi</th><th>Item</th><th>Total Qty</th><th>Status</th><th>Catatan Admin</th><th>Aksi</th></tr></thead><tbody>{loading ? <TableSkeleton rows={6} columns={10} /> : filteredRequests.map((r) => <tr key={r.id}><td><strong>{r.request_code}</strong></td><td>{r.surat_jalan_number || "-"}</td><td>{formatDate(r.created_at)}</td><td>{r.basecamp || "-"}</td><td>{r.referensi_pekerjaan || "-"}</td><td>{itemNames(r.items)}</td><td><strong>{r.total_qty}</strong></td><td><span className={statusClass(r.status)}>{statusText(r.status)}</span></td><td>{r.catatan_admin ?? "-"}</td><td><div className="request-action-buttons"><a className="btn-detail-blue" href={`/surat-jalan/${r.id}`} target="_blank"><FileText size={14}/> Detail</a>{r.status === "APPROVED" && <button className="btn-receive-green" type="button" onClick={() => void receiveMaterial(r)} disabled={receivingId === r.id}><CheckCircle2 size={14}/>{receivingId === r.id ? "Menerima..." : "Terima Material"}</button>}</div></td></tr>)}{!loading && filteredRequests.length === 0 && <tr><td colSpan={10}><div className="empty-state">Belum ada request material.</div></td></tr>}</tbody></table></div>
       <PaginationBar meta={meta} loading={loading} onPageChange={(page) => void refresh(page)} />
     </section>
     {open && <ViewportModal><div className="modal"><div className="modal-header"><div><h3 className="modal-title">Tambah Permintaan Material</h3><div className="modal-subtitle">Basecamp dan referensi pekerjaan akan tampil pada Surat Jalan.</div></div><button className="btn-ghost" onClick={() => setOpen(false)} disabled={loading}><X size={16} /></button></div><div className="modal-body"><div className="panel"><div className="panel-title">Informasi Surat Jalan</div><div className="form-grid"><label><span className="field-label">Basecamp</span><input className="form-control" value={basecamp} onChange={(e) => setBasecamp(e.target.value)} placeholder="Contoh: KP PURWOKERTO" /></label><label><span className="field-label">Referensi Pekerjaan / Project</span><input className="form-control" value={referensiPekerjaan} onChange={(e) => setReferensiPekerjaan(e.target.value)} placeholder="Contoh: CA CLP BARAT / Maintenance FO" /></label></div><span className="form-hint">Nama perusahaan dan no HP diambil dari Profil Saya.</span></div><div className="panel"><div className="panel-title">Pilih Material</div><div className="form-grid"><label><span className="field-label">Material</span><select className="form-select" value={selectedMaterialId} onChange={(e) => setSelectedMaterialId(e.target.value)}><option value="">Pilih material</option>{activeMaterials.map((m) => <option key={m.id} value={m.id}>{m.material_code} - {m.nama} | Stok: {m.gudang_qty}</option>)}</select></label><label><span className="field-label">Qty</span><input className="form-control" type="number" min={1} value={qty} onChange={(e) => setQty(e.target.value)} /></label></div>{selectedMaterial && <span className="form-hint">Stok tersedia: {selectedMaterial.gudang_qty} {selectedMaterial.satuan}. {selectedMaterial.wajib_sn ? "Material ini berserial." : "Material ini non-serial."}</span>}<button className="btn-dark" style={{ marginTop: 12 }} onClick={addToCart}>Tambah ke Daftar</button></div><div className="panel"><div className="panel-title">Daftar Request</div>{cart.length === 0 ? <div className="empty-state">Belum ada material ditambahkan.</div> : <div className="table-wrap"><table><thead><tr><th>Material</th><th>Qty</th><th>Aksi</th></tr></thead><tbody>{cart.map((item) => { const material = materials.find((m) => m.id === item.material_id); return <tr key={item.material_id}><td><strong>{material?.material_code}</strong> - {material?.nama}</td><td>{item.qty}</td><td><button className="btn-danger" onClick={() => setCart(cart.filter((x) => x.material_id !== item.material_id))}><Trash2 size={14} /></button></td></tr>; })}</tbody></table></div>}</div><label><span className="field-label">Catatan Teknisi</span><textarea className="form-control" rows={3} value={catatan} onChange={(e) => setCatatan(e.target.value)} placeholder="Opsional" /></label></div><div className="modal-footer"><button className="btn-ghost" onClick={() => setOpen(false)} disabled={loading}>Batal</button><button className="btn-primary" onClick={submit} disabled={loading}>{loading ? "Mengirim..." : "Kirim Request"}</button></div></div></ViewportModal>}
