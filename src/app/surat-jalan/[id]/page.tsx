@@ -74,7 +74,7 @@ export default async function SuratJalanPage({ params }: { params: Promise<{ id:
     <section className="sj-sheet">
       <header className="sj-header">
         <div className="sj-company"><strong>PT. PLN ICON PLUS</strong><span>{COMPANY_ADDRESS}</span></div>
-        <img className="sj-logo-img" src="/api/assets/pln-logo" alt="PLN Icon Plus" />
+        <img className="sj-logo-img" src="/pln-icon-plus-logo.svg?v=2" alt="PLN Icon Plus" />
       </header>
       <h1>BUKTI SERAH TERIMA BARANG</h1>
       <p className="sj-subtitle">Telah dilakukan serah terima barang/material sebagai berikut:</p>
