@@ -9,6 +9,7 @@ type PrintRow = { name: string; code: string; qty: number | string; type: string
 type SignatureBlockProps = { title: string; role: string; name?: string | null; phone?: string | null; company?: string | null; signatureUrl?: string | null; signedSrc?: string | null; className?: string };
 
 const COMPANY_ADDRESS = "Jl. Jend. Sudirman No.805, Sokabaru, Berkoh, Kec. Purwokerto Sel., Kabupaten Banyumas, Jawa Tengah 53146";
+const PLN_ICON_PLUS_LOGO_URL = "https://plniconplus.co.id/assets/logo-pln-plus.png";
 
 function formatDate(value?: string | null) { if (!value) return "-"; return new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(value)); }
 function formatDateTime(value?: string | null) { if (!value) return "-"; return new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)); }
@@ -74,7 +75,7 @@ export default async function SuratJalanPage({ params }: { params: Promise<{ id:
     <section className="sj-sheet">
       <header className="sj-header">
         <div className="sj-company"><strong>PT. PLN ICON PLUS</strong><span>{COMPANY_ADDRESS}</span></div>
-        <img className="sj-logo-img" src="/api/assets/pln-logo?v=real" alt="PLN Icon Plus" />
+        <img className="sj-logo-img" src={PLN_ICON_PLUS_LOGO_URL} alt="PLN Icon Plus" />
       </header>
       <h1>BUKTI SERAH TERIMA BARANG</h1>
       <p className="sj-subtitle">Telah dilakukan serah terima barang/material sebagai berikut:</p>
