@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { PLN_ICON_PLUS_LOGO_DATA_URI } from "@/lib/pln-logo-data";
 import { SuratJalanPrintButton } from "./print-button";
 import type { RequestSummary } from "@/types/database";
 
@@ -75,7 +74,7 @@ export default async function SuratJalanPage({ params }: { params: Promise<{ id:
     <section className="sj-sheet">
       <header className="sj-header">
         <div className="sj-company"><strong>PT. PLN ICON PLUS</strong><span>{COMPANY_ADDRESS}</span></div>
-        <img className="sj-logo-img" src={PLN_ICON_PLUS_LOGO_DATA_URI} alt="PLN Icon Plus" />
+        <img className="sj-logo-img" src="/api/assets/pln-logo" alt="PLN Icon Plus" />
       </header>
       <h1>BUKTI SERAH TERIMA BARANG</h1>
       <p className="sj-subtitle">Telah dilakukan serah terima barang/material sebagai berikut:</p>
