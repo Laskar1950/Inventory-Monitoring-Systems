@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getSessionProfile } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { notifyByRole, notifyUser } from "@/lib/notifications";
+import { notifyUser } from "@/lib/notifications";
 
 const schema = z.object({
   catatan_admin: z.string().optional().nullable(),
@@ -32,8 +32,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .single();
 
   if (!requestBefore) return NextResponse.json({ error: "Request tidak ditemukan." }, { status: 404 });
-  if (requestBefore.status !== "LEADER_APPROVED") {
-    return NextResponse.json({ error: "Request harus sudah disetujui Leader sebelum Admin memproses surat jalan." }, { status: 400 });
+  if (requestBefore.status !== "WAITING_SIGNATURE") {
+    return NextResponse.json({ error: "Request harus sudah disetujui Supervisor sebelum Admin memproses Surat Jalan." }, { status: 400 });
   }
 
   const { data: requestItems, error: itemLoadError } = await supabase
@@ -80,25 +80,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
   }
 
-  const now = new Date();
-  const suratJalanNumber = `SJ-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${requestBefore.request_code}`;
-
-  const { error: updateError } = await supabase
-    .from("material_requests")
-    .update({
-      status: "WAITING_SIGNATURE",
-      approved_by: profile.id,
-      approved_at: now.toISOString(),
-      admin_signature_url: profile.signature_url,
-      admin_signed_at: now.toISOString(),
-      catatan_admin: parsed.data.catatan_admin ?? null,
-      surat_jalan_number: suratJalanNumber,
-      updated_at: now.toISOString(),
-    })
-    .eq("id", id);
-
-  if (updateError) return NextResponse.json({ error: updateError.message || "Gagal update status request." }, { status: 400 });
-
   await supabase.from("material_request_item_serials").delete().eq("request_id", id);
 
   for (const item of payloadItems) {
@@ -122,31 +103,26 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
   }
 
-  await notifyByRole(["KOORDINATOR"], {
-    title: "Surat jalan menunggu tanda tangan Koordinator",
-    message: `Surat jalan ${suratJalanNumber} siap ditandatangani Koordinator.`,
-    entityType: "material_requests",
-    entityId: id,
-    linkUrl: "/approvals/koordinator",
+  const now = new Date();
+  const suratJalanNumber = `SJ-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${requestBefore.request_code}`;
+  const { data, error } = await supabase.rpc("admin_process_material_request", {
+    p_request_id: id,
+    p_admin_id: profile.id,
+    p_signature_url: profile.signature_url,
+    p_catatan_admin: parsed.data.catatan_admin ?? null,
+    p_surat_jalan_number: suratJalanNumber,
   });
-
-  await notifyByRole(["SUPERVISOR"], {
-    title: "Surat jalan sedang diproses",
-    message: `Surat jalan ${suratJalanNumber} sedang menunggu tanda tangan Koordinator sebelum approval final Supervisor.`,
-    entityType: "material_requests",
-    entityId: id,
-    linkUrl: "/approvals/supervisor",
-  });
+  if (error) return NextResponse.json({ error: error.message || "Gagal memproses Surat Jalan." }, { status: 400 });
 
   if (requestBefore.teknisi_id) {
     await notifyUser(requestBefore.teknisi_id, {
-      title: "Request diproses Admin",
-      message: `Request ${requestBefore.request_code} telah diproses Admin. Surat jalan sedang dalam proses penandatanganan.`,
+      title: "Material siap diterima",
+      message: `Request ${requestBefore.request_code} telah diproses Admin Gudang. Material masuk ke Tas Saya dan menunggu tanda tangan penerimaan.`,
       entityType: "material_requests",
       entityId: id,
       linkUrl: "/requests",
     });
   }
 
-  return NextResponse.json({ data: id, surat_jalan_number: suratJalanNumber, message: "Request berhasil diproses. Surat jalan menunggu tanda tangan Koordinator." });
+  return NextResponse.json({ data, surat_jalan_number: suratJalanNumber, message: "Surat Jalan berhasil diproses Admin Gudang. Material siap diterima teknisi." });
 }
