@@ -13,7 +13,7 @@ type Meta = { page: number; limit: number; total: number; totalPages: number };
 type RequesterProfile = { basecamp?: string | null; company_name?: string | null; phone_number?: string | null };
 
 function statusClass(status: string) { if (["APPROVED", "COMPLETED"].includes(status)) return "badge badge-success"; if (status === "REJECTED") return "badge badge-danger"; return "badge badge-warning"; }
-function statusText(status: string) { return status === "PENDING" ? "Menunggu Leader" : status === "LEADER_APPROVED" ? "Menunggu Admin" : status === "WAITING_SIGNATURE" ? "Menunggu Koordinator" : status === "KOORDINATOR_SIGNED" ? "Menunggu Supervisor" : status === "APPROVED" ? "Siap Diterima" : status === "COMPLETED" ? "Selesai" : status; }
+function statusText(status: string) { return status === "PENDING" ? "Menunggu Leader" : status === "LEADER_APPROVED" ? "Menunggu Koordinator" : status === "KOORDINATOR_SIGNED" ? "Menunggu Supervisor" : status === "WAITING_SIGNATURE" ? "Menunggu Admin Gudang" : status === "APPROVED" ? "Siap Diterima" : status === "COMPLETED" ? "Selesai" : status; }
 function formatDate(value: string) { return new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)); }
 function itemNames(items: RequestDetail["items"]) { return items.map((i) => i.material_nama).join(", "); }
 
